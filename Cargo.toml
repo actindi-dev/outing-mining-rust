@@ -1,0 +1,13 @@
+[package]
+name = "try-iron"
+version = "0.1.0"
+authors = ["TAHARA Yoshinori <read.eval.print@gmail.com>"]
+
+[features]
+## create a feature in your app
+watch = ["handlebars-iron/watch"]
+
+[dependencies]
+iron = "*"
+router = "*"
+handlebars-iron = "*"
