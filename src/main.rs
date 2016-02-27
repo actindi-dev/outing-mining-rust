@@ -1,10 +1,17 @@
-// cargo run
+#![feature(custom_derive, plugin)]
+#![plugin(serde_macros)]
+// cargo run --features 'serde_type'
 //
 // テンプレートのライブリロード
-// cargo run --features watch
+// cargo run --features 'watch serde_type'
 extern crate iron;
 extern crate router;
 extern crate handlebars_iron as hbs;
+extern crate mysql;
+extern crate typemap;
+extern crate plugin;
+extern crate serde;
+extern crate serde_json;
 
 use std::error::Error;
 
@@ -17,10 +24,10 @@ use std::sync::Arc;
 use hbs::Watchable;
 use hbs::{HandlebarsEngine, DirectorySource};
 
+mod db;
 mod hello;
 
 fn main() {
-
     let mut router = Router::new();
     router.get("/", |_: &mut Request| {
         Ok(Response::with((status::Ok, "ずみゅー")))
@@ -38,6 +45,7 @@ fn main() {
 
     let mut chain = Chain::new(router);
     chain_hbse(hbse, &mut chain);
+    chain.link_around(db::DbMiddleware::new());
     Iron::new(chain).http("localhost:9000").unwrap();
 }
 

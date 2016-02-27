@@ -6,8 +6,16 @@ authors = ["TAHARA Yoshinori <read.eval.print@gmail.com>"]
 [features]
 ## create a feature in your app
 watch = ["handlebars-iron/watch"]
+serde_type = ["handlebars-iron/serde_type"]
 
 [dependencies]
 iron = "*"
 router = "*"
+handlebars = "*"
 handlebars-iron = "*"
+mysql = "*"
+typemap = "*"
+plugin = "*"
+serde = "*"
+serde_json = "*"
+serde_macros = "*"
