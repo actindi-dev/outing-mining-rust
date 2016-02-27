@@ -11,20 +11,22 @@ use std::error::Error;
 use iron::prelude::*;
 use iron::status;
 use router::Router;
-use hbs::{Template, HandlebarsEngine, DirectorySource};
 #[cfg(feature = "watch")]
 use std::sync::Arc;
 #[cfg(feature = "watch")]
 use hbs::Watchable;
+use hbs::{HandlebarsEngine, DirectorySource};
+
+mod hello;
 
 fn main() {
 
     let mut router = Router::new();
     router.get("/", |_: &mut Request| {
-        Ok(Response::with((status::Ok, "トップ<br><a href='/hello'>hello</a>")))
+        Ok(Response::with((status::Ok, "ずみゅー")))
     });
-    router.get("/hello", hello_world);
 
+    router.get("/hello", hello::action);
 
     let mut hbse = HandlebarsEngine::new2();
     hbse.add(Box::new(DirectorySource::new("./templates/", ".hbs")));
@@ -36,7 +38,6 @@ fn main() {
 
     let mut chain = Chain::new(router);
     chain_hbse(hbse, &mut chain);
-
     Iron::new(chain).http("localhost:9000").unwrap();
 }
 
@@ -49,11 +50,4 @@ fn chain_hbse(hbse: HandlebarsEngine, chain: &mut Chain) {
 #[cfg(not(feature = "watch"))]
 fn chain_hbse(hbse: HandlebarsEngine, chain: &mut Chain) {
     chain.link_after(hbse);
-}
-
-fn hello_world(_: &mut Request) -> IronResult<Response> {
-    let mut response = Response::new();
-
-    response.set_mut(Template::new("hello", ())).set_mut(status::Ok);
-    Ok(response)
 }
