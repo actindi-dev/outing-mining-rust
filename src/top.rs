@@ -32,7 +32,7 @@ pub fn action(request: &mut Request) -> IronResult<Response> {
         .ok().expect("Failed to initialize standalone client.");
     let logs_event = client.db("outing").collection("logs.event");
     let mut cursor = logs_event.find(None, None).ok().expect("Failed to execute find.");
-    cursor.next().map(|x| x.map(|doc| doc.get("pt").map(|ref pt| {
+    cursor.next().map(|x| x.map(|doc| doc.get("pt").map(|pt| {
         println!("{}", pt);
         data.insert("pt".to_string(), value::to_value(pt));
     })));
