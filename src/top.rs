@@ -5,7 +5,6 @@ use mysql::from_row;
 use db::DbRequestExtension;
 use std::collections::BTreeMap;
 use serde_json::value;
-use bson::Bson;
 use mongodb::{Client, ThreadedClient};
 use mongodb::db::ThreadedDatabase;
 
@@ -33,18 +32,10 @@ pub fn action(request: &mut Request) -> IronResult<Response> {
         .ok().expect("Failed to initialize standalone client.");
     let logs_event = client.db("outing").collection("logs.event");
     let mut cursor = logs_event.find(None, None).ok().expect("Failed to execute find.");
-    let item = cursor.next();
-    match item {
-        Some(Ok(doc)) => match doc.get("pt") {
-            Some(&Bson::String(ref pt)) => {
-                println!("{}", pt);
-                data.insert("pt".to_string(), value::to_value(pt));
-            },
-            _ => panic!("Expected title to be a string!"),
-        },
-        Some(Err(_)) => panic!("Failed to get next from server!"),
-        None => panic!("Server returned no results!"),
-    }
+    cursor.next().map(|x| x.map(|doc| doc.get("pt").map(|ref pt| {
+        println!("{}", pt);
+        data.insert("pt".to_string(), value::to_value(pt));
+    })));
 
     response.set_mut(Template::new("top", data)).set_mut(status::Ok);
     Ok(response)
