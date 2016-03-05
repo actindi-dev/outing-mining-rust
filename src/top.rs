@@ -16,6 +16,8 @@ struct Region {
 
 pub fn action(request: &mut Request) -> IronResult<Response> {
     let mut response = Response::new();
+    let mut data = BTreeMap::new();
+    data.insert("title".to_string(), value::to_value(&"トップ".to_string()));
 
     let regions: Vec<Region> =
         request.db().prep_exec("select id, name from regions order by rand()", ()).unwrap().map(|row| {
@@ -23,7 +25,6 @@ pub fn action(request: &mut Request) -> IronResult<Response> {
             Region { id: id, name: name }
         }).collect();
 
-    let mut data = BTreeMap::new();
     data.insert("regions".to_string(), value::to_value(&regions));
     data.insert("foo".to_string(), value::to_value(&"ふー".to_string()));
 
