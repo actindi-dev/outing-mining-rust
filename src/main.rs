@@ -1,10 +1,11 @@
-#![feature(custom_derive, plugin)]
-#![plugin(serde_macros)]
-
 // cargo run --features 'serde_type'
 //
 // テンプレートのライブリロード
 // cargo run --features 'watch serde_type'
+
+#![feature(custom_derive, plugin)]
+#![plugin(serde_macros)]
+
 extern crate iron;
 extern crate router;
 extern crate handlebars_iron as hbs;
@@ -16,7 +17,7 @@ extern crate serde_json;
 extern crate bson;
 extern crate mongodb;
 
-#[macro_use(bson, doc)]
+// #[macro_use(bson, doc)]
 
 use std::error::Error;
 
@@ -29,6 +30,7 @@ use hbs::Watchable;
 use hbs::{HandlebarsEngine, DirectorySource};
 
 mod db;
+mod mongo;
 mod top;
 mod hello;
 

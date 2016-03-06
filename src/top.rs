@@ -5,8 +5,9 @@ use mysql::from_row;
 use db::DbRequestExtension;
 use std::collections::BTreeMap;
 use serde_json::value;
-use mongodb::{Client, ThreadedClient};
+use mongodb::ThreadedClient;
 use mongodb::db::ThreadedDatabase;
+use mongo::MongoRequestExtension;
 
 #[derive(Serialize, Debug)]
 struct Region {
@@ -29,8 +30,7 @@ pub fn action(request: &mut Request) -> IronResult<Response> {
     data.insert("foo".to_string(), value::to_value(&"ふー".to_string()));
 
 
-    let client = Client::connect("localhost", 27017)
-        .ok().expect("Failed to initialize standalone client.");
+    let client = request.mongo().unwrap();
     let logs_event = client.db("outing").collection("logs.event");
     let mut cursor = logs_event.find(None, None).ok().expect("Failed to execute find.");
     cursor.next().map(|x| x.map(|doc| doc.get("pt").map(|pt| {
