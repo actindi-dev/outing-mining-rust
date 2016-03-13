@@ -28,10 +28,11 @@ use std::sync::Arc;
 #[cfg(feature = "watch")]
 use hbs::Watchable;
 use hbs::{HandlebarsEngine, DirectorySource};
+use summary::SummaryMiddleware;
 
 mod db;
 mod mongo;
-mod background;
+mod summary;
 mod top;
 mod hello;
 
@@ -52,7 +53,7 @@ fn main() {
     chain_hbse(hbse, &mut chain);
     chain.link_around(db::DbMiddleware::new());
 
-    chain.link_around(background::run());
+    chain.link_around(SummaryMiddleware::new());
 
     Iron::new(chain).http("localhost:1958").unwrap();
 }

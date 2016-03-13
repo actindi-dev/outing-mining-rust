@@ -1,4 +1,5 @@
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, SystemTime};
 use iron::prelude::*;
 use iron::{Handler, AroundMiddleware};
 use plugin::Extensible;
@@ -7,7 +8,9 @@ use typemap::Key;
 use db::DbMiddleware;
 use mysql::from_row;
 
-#[derive(Serialize, Debug)]
+const REFRESH_PERIOD: u64 = 5;  // 60 * 60
+
+#[derive(Serialize, Debug, Clone)]
 pub struct Summary {
     pub name: &'static str,
     pub this_week: i32,
@@ -19,15 +22,28 @@ pub struct Summary {
     all_sql: &'static str,
 }
 
+pub struct SummaryHolder {
+    summaries: Vec<Summary>,
+    updated_at: SystemTime,
+}
 
-pub fn run() -> SummaryMiddleware {
-    let x = SummaryMiddleware::new();
-
-    for i in x.summaries.lock().unwrap().iter_mut() {
-        i.refresh();
+impl SummaryHolder {
+    fn new() -> SummaryHolder {
+        SummaryHolder {
+            summaries: make_summaries(),
+            updated_at: SystemTime::now() - Duration::from_secs(REFRESH_PERIOD),
+        }
     }
 
-    x
+    fn refresh(&mut self) {
+        if self.updated_at.elapsed().unwrap() >= Duration::from_secs(REFRESH_PERIOD) {
+            self.updated_at = SystemTime::now();
+            for i in self.summaries.iter_mut() {
+                i.refresh();
+            }
+            println!("refreshed! {:?}", self.updated_at);
+        }
+    }
 }
 
 impl Summary {
@@ -91,47 +107,51 @@ fn make_summaries() -> Vec<Summary> {
 
 /////////////////////////////////////////////////////////////////////////////
 pub struct SummaryMiddleware {
-    summaries: Arc<Mutex<Vec<Summary>>>,
+    // TODO Mutex を RwLock に変える
+    holder: Arc<Mutex<SummaryHolder>>,
 }
 
 impl SummaryMiddleware {
     pub fn new() -> SummaryMiddleware {
-        SummaryMiddleware { summaries: Arc::new(Mutex::new(make_summaries())) }
+        SummaryMiddleware { holder: Arc::new(Mutex::new(SummaryHolder::new())) }
     }
 }
 
 impl Key for SummaryMiddleware {
-    type Value = Arc<Mutex<Vec<Summary>>>;
+    type Value = Arc<Mutex<SummaryHolder>>;
 }
 
 impl AroundMiddleware for SummaryMiddleware {
     fn around(self, handler: Box<Handler>) -> Box<Handler> {
         Box::new(MyHandler {
-            summaries: self.summaries,
+            holder: self.holder,
             handler: handler,
         }) as Box<Handler>
     }
 }
 
 struct MyHandler<H: Handler> {
-    summaries: Arc<Mutex<Vec<Summary>>>,
+    holder: Arc<Mutex<SummaryHolder>>,
     handler: H,
 }
 
 impl<H: Handler> Handler for MyHandler<H> {
     fn handle(&self, req: &mut Request) -> IronResult<Response> {
-        req.extensions_mut().insert::<SummaryMiddleware>(self.summaries.clone());
+        req.extensions_mut().insert::<SummaryMiddleware>(self.holder.clone());
         let res = self.handler.handle(req);
         res
     }
 }
 
 pub trait SummaryExtension {
-    fn summaries(&self) -> &Arc<Mutex<Vec<Summary>>>;
+    fn summaries(&self) -> Vec<Summary>;
 }
 
 impl<'a, 'b> SummaryExtension for Request<'a, 'b> {
-    fn summaries(&self) -> &Arc<Mutex<Vec<Summary>>> {
-        self.extensions().get::<SummaryMiddleware>().unwrap()
+    fn summaries(&self) -> Vec<Summary> {
+        let holder = self.extensions().get::<SummaryMiddleware>().unwrap();
+        let mut holder = holder.lock().unwrap();
+        holder.refresh();
+        holder.summaries.clone()
     }
 }

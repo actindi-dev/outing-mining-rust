@@ -3,7 +3,7 @@ use iron::status;
 use hbs::Template;
 use std::collections::HashMap;
 use serde_json::value;
-use background::{Summary, SummaryExtension};
+use summary::SummaryExtension;
 
 #[derive(Serialize, Debug)]
 struct Region {
@@ -16,8 +16,7 @@ pub fn action(request: &mut Request) -> IronResult<Response> {
     let mut data = HashMap::new();
     data.insert("title", value::to_value(&"トップ".to_string()));
 
-    let ref vec: Vec<Summary> = *request.summaries().lock().unwrap();
-    data.insert("summaries", value::to_value(vec));
+    data.insert("summaries", value::to_value(&request.summaries()));
 
     response.set_mut(Template::new("top", data)).set_mut(status::Ok);
     Ok(response)
