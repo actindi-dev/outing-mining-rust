@@ -31,6 +31,7 @@ use hbs::{HandlebarsEngine, DirectorySource};
 
 mod db;
 mod mongo;
+mod background;
 mod top;
 mod hello;
 
@@ -50,7 +51,10 @@ fn main() {
     let mut chain = Chain::new(router);
     chain_hbse(hbse, &mut chain);
     chain.link_around(db::DbMiddleware::new());
-    Iron::new(chain).http("localhost:9000").unwrap();
+
+    chain.link_around(background::run());
+
+    Iron::new(chain).http("localhost:1958").unwrap();
 }
 
 #[cfg(feature = "watch")]

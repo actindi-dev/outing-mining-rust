@@ -7,7 +7,7 @@ use mysql::{Pool, Opts};
 use plugin::Extensible;
 
 pub struct DbMiddleware {
-    pool: Arc<Pool>,
+    pub pool: Arc<Pool>,
 }
 
 struct DbHandler<H: Handler> { db: DbMiddleware, handler: H }
