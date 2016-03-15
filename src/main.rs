@@ -8,6 +8,7 @@
 
 extern crate iron;
 extern crate router;
+extern crate handlebars;
 extern crate handlebars_iron as hbs;
 extern crate mysql;
 extern crate typemap;
@@ -33,6 +34,7 @@ use summary::SummaryMiddleware;
 
 mod db;
 mod mongo;
+mod view_helper;
 mod summary;
 mod top;
 mod hello;
@@ -44,10 +46,11 @@ fn main() {
 
     let mut hbse = HandlebarsEngine::new2();
     hbse.add(Box::new(DirectorySource::new("./templates/", ".hbs")));
+    hbse.registry.write().unwrap().register_helper("commify", Box::new(view_helper::commify));
 
     // load templates from all registered sources
     if let Err(r) = hbse.reload() {
-        panic!("{}", r.description());
+        panic!("hbse.reload() {}", r.description());
     }
 
     let mut chain = Chain::new(router);
