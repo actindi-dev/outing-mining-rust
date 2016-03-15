@@ -19,6 +19,8 @@ pub struct Summary {
     pub this_month: u32,
     pub last_month: u32,
     pub all: u32,
+    pub week_percent: String,
+    pub month_percent: String,
     start_end_sql: &'static str,
     all_sql: &'static str,
 }
@@ -56,6 +58,8 @@ impl Summary {
             this_month: 0,
             last_month: 0,
             all: 0,
+            week_percent: "-".to_string(),
+            month_percent: "-".to_string(),
             start_end_sql: start_end_sql,
             all_sql: all_sql,
         }
@@ -78,6 +82,19 @@ impl Summary {
         self.last_week = self.start_end_count(&pool, last_week_start, last_week_end);
         self.this_month = self.start_end_count(&pool, this_month_start, this_month_end);
         self.last_month = self.start_end_count(&pool, last_month_start, last_month_end);
+
+        self.week_percent =
+            if self.last_week == 0 {
+                "-".to_string()
+            } else {
+                format!("{:.*}", 1, self.this_week as f32 / self.last_week as f32 * 100f32)
+            };
+        self.month_percent =
+            if self.last_month == 0 {
+                "-".to_string()
+            } else {
+                format!("{:.*}", 1, self.this_month as f32 / self.last_month as f32 * 100f32)
+            };
     }
 
     fn start_end_count(&self, pool: &Arc<Pool>, start: DateTime<Local>, end: DateTime<Local>) -> u32 {

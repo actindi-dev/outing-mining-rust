@@ -5,11 +5,11 @@
     <h1>{{name}}</h1>
     <h2>この7間日</h2>
     <p class="value">
-      {{commify this_week}}<span class="last-value plus">({{commify last_week}} 114.8%)</span>
+      {{commify this_week}}<span class="last-value plus">({{commify last_week}} {{week_percent}}%)</span>
     </p>
     <h2>この30間日</h2>
     <p class="value">
-      {{commify this_month}}<span class="last-value minus">({{commify this_month}} 69.9%)</span>
+      {{commify this_month}}<span class="last-value minus">({{commify this_month}} {{month_percent}}%)</span>
     </p>
     <h2>トータル</h2>
     <p class="value">{{commify all}}</p>
