@@ -1,14 +1,14 @@
+use std::collections::HashMap;
+
 use bson::Bson;
 use chrono::{Date, Duration, Local};
 use chrono::offset::utc::UTC;
 use hbs::Template;
 use iron::prelude::*;
 use iron::status;
-use mongo::MongoRequestExtension;
-use mongodb::db::ThreadedDatabase;
-use mongodb::{Client, ThreadedClient};
 use serde_json::value;
-use std::collections::HashMap;
+use mongo_driver::client::Client;
+use mongo::MongoRequestExtension;
 
 #[derive(Serialize, Debug)]
 struct OfDate {
@@ -39,7 +39,7 @@ pub fn action(request: &mut Request) -> IronResult<Response> {
     let mut data = HashMap::new();
     data.insert("title", value::to_value(&"ログイン監視".to_string()));
 
-    let mongo = request.mongo().unwrap();
+    let mongo = request.mongo();
     let login_data = watch_login_data(&mongo);
     data.insert("login_data", value::to_value(&login_data));
 
@@ -106,7 +106,7 @@ fn watch_log_per_date(mongo: &Client, date: Date<Local>)
                       -> (HashMap<String, usize>, HashMap<String, usize>) {
     let end = date + Duration::days(1);
 
-    let logs_event = mongo.db("outing").collection("logs.event");
+    let logs_event = mongo.get_collection("outing", "logs.event");
     let condition = doc! {
         "events" => {
             "$elemMatch" => {
@@ -118,14 +118,14 @@ fn watch_log_per_date(mongo: &Client, date: Date<Local>)
             "$lt" => (end.and_hms(0, 0, 0).with_timezone(&UTC))
         }
     };
-    let mut cursor = logs_event.find(Some(condition), None).unwrap();
+    let cursor = logs_event.find(&condition, None).unwrap();
 
     let mut success = HashMap::new();
     let mut failed = HashMap::new();
     let login_true = Bson::Document(doc! { "login" => true });
-    loop {
-        match cursor.next() {
-            Some(Ok(log)) => {
+    for log in cursor.into_iter() {
+        match log {
+            Ok(log) => {
                 match log.get_str("ip") {
                     Ok(ip) => {
                         let ip = ip.to_string();
@@ -154,8 +154,7 @@ fn watch_log_per_date(mongo: &Client, date: Date<Local>)
                     _ => {},
                 }
             },
-            Some(Err(_)) => panic!("Failed to get next from server!"),
-            None => break,
+            Err(e) => panic!("Failed to get next from server! {}", e),
         }
     }
     (success, failed)

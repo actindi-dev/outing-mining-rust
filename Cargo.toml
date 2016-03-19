@@ -9,9 +9,9 @@ watch = ["handlebars-iron/watch"]
 serde_type = ["handlebars-iron/serde_type"]
 
 [dependencies]
-iron = "*"
+iron = "0.2.0"
 router = "*"
-handlebars = "*"
+handlebars = "0.15.0"
 handlebars-iron = "*"
 mysql = "*"
 typemap = "*"
@@ -19,6 +19,6 @@ plugin = "*"
 serde = "*"
 serde_json = "*"
 serde_macros = "*"
-bson = "0.1.4"
-mongodb = "0.1.0"
 chrono = "0.2.0"
+mongo_driver = "0.2.3"
+bson = "0.2.0"

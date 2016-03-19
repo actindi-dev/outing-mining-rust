@@ -17,7 +17,7 @@ extern crate serde;
 extern crate serde_json;
 #[macro_use(bson, doc)]
 extern crate bson;
-extern crate mongodb;
+extern crate mongo_driver;
 extern crate chrono;
 
 // #[macro_use(bson, doc)]
@@ -35,6 +35,7 @@ use summary::SummaryMiddleware;
 
 mod db;
 mod mongo;
+mod tail_event;
 mod view_helper;
 mod summary;
 mod top;
@@ -59,8 +60,13 @@ fn main() {
     let mut chain = Chain::new(router);
     chain_hbse(hbse, &mut chain);
     chain.link_around(db::DbMiddleware::new());
+    let mongo_middleware = mongo::MongoMiddleware::new();
+    let pool = mongo_middleware.pool.clone();
+    chain.link_around(mongo_middleware);
 
     chain.link_around(SummaryMiddleware::new());
+
+    tail_event::run(pool);
 
     Iron::new(chain).http("localhost:1958").unwrap();
 }
