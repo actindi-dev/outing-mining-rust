@@ -15,6 +15,7 @@ extern crate typemap;
 extern crate plugin;
 extern crate serde;
 extern crate serde_json;
+#[macro_use(bson, doc)]
 extern crate bson;
 extern crate mongodb;
 extern crate chrono;
@@ -37,11 +38,13 @@ mod mongo;
 mod view_helper;
 mod summary;
 mod top;
+mod watch_login;
 mod hello;
 
 fn main() {
     let mut router = Router::new();
     router.get("/", top::action);
+    router.get("/watch-login", watch_login::action);
     router.get("/hello", hello::action);
 
     let mut hbse = HandlebarsEngine::new2();

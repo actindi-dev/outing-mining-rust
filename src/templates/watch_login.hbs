@@ -1,0 +1,42 @@
+{{#partial page}}
+<h1>ログイン監視</h1>
+<h2>失敗数</h2>
+<div id="graph"></div>
+
+<h2>履歴</h2>
+<ul>
+  {{#each top_data}}
+  <li>
+    {{date}}
+    <ul>
+      <li>
+        成功: {{success_count}} (ip: {{success_nip}})
+        <ul>
+          {{#each success_vec}}
+          <li>
+            {{ip}} {{count}}
+          </li>
+          {{/each}}
+        </ul>
+      </li>
+      <li>
+        失敗: {{failed_count}} (ip: {{failed_nip}})
+        <ul>
+          {{#each failed_vec}}
+          <li>
+            {{ip}} <span class="login-failed-count">{{count}}</span>
+          </li>
+          {{/each}}
+        </ul>
+      </li>
+    </ul>
+  </li>
+  {{/each}}
+</ul>
+
+<script src="/js/d3.v3.min.js" charset="utf-8"></script>
+<div data-dataset="[{{graph_data}}]">
+  <script src="/js/watch-login.js" charset="utf-8"></script>
+</div>
+{{/partial}}
+{{~> layout ~}}
