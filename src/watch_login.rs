@@ -86,18 +86,20 @@ fn graph_data(vec: &Vec<OfDate>) -> String {
 
 fn watch_login_data(mongo: &Client) -> Vec<OfDate> {
     let end = Local::today() - Duration::days(1);
-    //TODO let mut date = end - Duration::days(29);
+    #[cfg(not(debug_assertions))]
+    let mut date = end - Duration::days(29);
+    #[cfg(debug_assertions)]
     let mut date = end - Duration::days(1);
     let mut vec = Vec::new();
 
     while date <= end {
         let (success, failed) = watch_log_per_date(&mongo, date);
-        date = date.succ();
         vec.push(OfDate {
             date: date.format("%Y/%m/%d").to_string(),
             success: success,
             failed: failed,
         });
+        date = date.succ();
     }
     vec
 }

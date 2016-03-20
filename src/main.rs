@@ -3,7 +3,7 @@
 // テンプレートのライブリロード
 // cargo run --features 'watch serde_type'
 
-#![feature(custom_derive, plugin)]
+#![feature(custom_derive, plugin, stmt_expr_attributes)]
 #![plugin(serde_macros)]
 
 extern crate iron;

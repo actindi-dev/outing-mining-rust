@@ -19,7 +19,9 @@ impl TailProcess {
         let client = self.pool.pop();
 
         let logs_app = client.get_collection("outing", "logs.app");
-        // let logs_event = client.get_collection("outing", "logs.event");
+        #[cfg(not(debug_assertions))]
+        let logs_event = client.get_collection("outing", "logs.event");
+        #[cfg(debug_assertions)]
         let logs_event = client.get_collection("outing", "logs.event_test");
 
         let condition = doc! { "events" => { "$exists" => true } };
@@ -36,24 +38,19 @@ impl TailProcess {
         }
     }
 
+    // db.logs.event.find().sort({ time: -1 }).limit(1)
     fn insert_event_log(&self, logs_event: &Collection, log: Document) {
-        match logs_event.insert(&log, None) {
-            Ok(ok) => {
-                println!("ok {:?}", ok);
-            },
-            Err(e) => {
-                println!("Err {}", e);
-                panic!("Err {}", e);
+        let id = log.get("_id").unwrap().clone();
+        let count = logs_event.count(&doc!{ "_id" => id }, None).unwrap();
+        if count == 0 {
+            match logs_event.insert(&log, None) {
+                Ok(ok) => {
+                    println!("ok {:?}", ok);
+                },
+                Err(e) => {
+                    panic!("Err {}", e);
+                }
             }
         }
     }
 }
-/*
-ok Some(ObjectId(ObjectId { id: [86, 234, 215, 201, 115, 44, 21, 55, 151, 212, 9, 165] }))
-ok Some(ObjectId(ObjectId { id: [86, 234, 216, 121, 115, 44, 21, 55, 151, 212, 25, 45] }))
-ok Some(ObjectId(ObjectId { id: [86, 234, 216, 242, 115, 44, 21, 55, 151, 212, 38, 4] }))
-
-ok Some(ObjectId(ObjectId { id: [86, 234, 215, 201, 115, 44, 21, 55, 151, 212, 9, 165] }))
-ok Some(ObjectId(ObjectId { id: [86, 234, 216, 121, 115, 44, 21, 55, 151, 212, 25, 45] }))
-ok Some(ObjectId(ObjectId { id: [86, 234, 216, 242, 115, 44, 21, 55, 151, 212, 38, 4] }))
-*/

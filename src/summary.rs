@@ -44,7 +44,6 @@ impl SummaryHolder {
             for i in self.summaries.iter_mut() {
                 i.refresh();
             }
-            println!("refreshed! {:?}", self.updated_at);
         }
     }
 }
