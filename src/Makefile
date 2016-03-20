@@ -4,8 +4,13 @@ all:
 run-release:
 	RUST_BACKTRACE=1 cargo run --features 'serde_type' --release
 
-rlease:
+release:
 	cargo build --release --features 'serde_type'
+
+deploy: release
+	ssh log-iko-yo 'mkdir -p ~/outing-mining-rust'
+	scp -C ../target/release/outing-mining-rust log-iko-yo:~/outing-mining-rust
+	scp -C -r ../etc ../public log-iko-yo:~/outing-mining-rust
 
 update:
 	cargo update

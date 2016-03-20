@@ -9,7 +9,7 @@ use mysql::from_row;
 use mysql::{Pool, Value};
 use chrono::{Datelike, DateTime, Duration, Local, Timelike};
 
-const REFRESH_PERIOD: i64 = 60 * 60;
+const REFRESH_PERIOD_SECONDS: i64 = 60 * 60;
 
 #[derive(Serialize, Debug, Clone)]
 pub struct Summary {
@@ -34,12 +34,12 @@ impl SummaryHolder {
     fn new() -> SummaryHolder {
         SummaryHolder {
             summaries: make_summaries(),
-            updated_at: Local::now() - Duration::seconds(REFRESH_PERIOD),
+            updated_at: Local::now() - Duration::seconds(REFRESH_PERIOD_SECONDS),
         }
     }
 
     fn refresh(&mut self) {
-        if Local::now() - self.updated_at > Duration::seconds(REFRESH_PERIOD) {
+        if Local::now() - self.updated_at > Duration::seconds(REFRESH_PERIOD_SECONDS) {
             self.updated_at = Local::now();
             for i in self.summaries.iter_mut() {
                 i.refresh();

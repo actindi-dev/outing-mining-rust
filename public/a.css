@@ -1,0 +1,39 @@
+body {
+    padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+    /* background-color: black; */
+    /* color: #ddd; */
+}
+
+.value {
+    font-size: 32px;
+    font-weight: bold;
+    color: green;
+}
+
+.last-value {
+    font-size: 50%;
+}
+
+.minus {
+    color: #a00;
+}
+
+.env-mark {
+    float: right;
+    color: red;
+    font-weight: bold;
+    margin-right: 0.5em;
+}
+
+table.counter td {
+    text-align: right;
+}
+
+.self-ip {
+    color: #bbb;
+}
+
+.login-failed-count {
+    font-weight: bold;
+    color: #c00;
+}

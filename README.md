@@ -12,3 +12,12 @@ RUST_BACKTRACE=1 cargo run --features 'watch serde_type'
 sudo service mongodb stop
 ssh -C -L 27017:localhost:27017 log-iko-yo
 ```
+
+# 本番環境
+
+/etc/default/outing-mining-rust
+で接続先の DB を指定する
+
+```
+DB_URL="mysql://user:password@host:port/db"
+```

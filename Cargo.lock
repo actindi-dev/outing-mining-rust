@@ -1,5 +1,5 @@
 [root]
-name = "try-iron"
+name = "outing-mining-rust"
 version = "0.1.0"
 dependencies = [
  "bson 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
