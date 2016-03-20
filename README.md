@@ -21,3 +21,10 @@ ssh -C -L 27017:localhost:27017 log-iko-yo
 ```
 DB_URL="mysql://user:password@host:port/db"
 ```
+
+init スクリプトの仕込み
+
+```
+sudo ln -s /home/deployer/outing-mining-rust/etc/init.sh /etc/init.d/outing-mining-rust
+sudo update-rc.d outing-mining-rust defaults
+```
