@@ -1,17 +1,15 @@
-# 開発時
+# 開発環境
 
-`features` に `watch` を指定して実行のビュー更新可にする。
-
-```
-RUST_BACKTRACE=1 cargo run --features 'watch serde_type'
-```
-
-## あっちの MongoDB につないでみたい場合
+Rust の nightly を multirust でインストールする。
 
 ```
-sudo service mongodb stop
-ssh -C -L 27017:localhost:27017 log-iko-yo
+curl -sf https://raw.githubusercontent.com/brson/multirust/master/blastoff.sh | sh
+multirust update
+multirust default nightly
 ```
+
+`src` ディレクトリで `make` すれば動く。
+
 
 # 本番環境
 
@@ -27,4 +25,22 @@ init スクリプトの仕込み
 ```
 sudo ln -s /home/deployer/outing-mining-rust/etc/init.sh /etc/init.d/outing-mining-rust
 sudo update-rc.d outing-mining-rust defaults
+```
+
+# デプロイ
+
+```
+make deploy
+```
+
+再起動はしないので `ssh` して `sudo service outing-mining-rust restart` する。
+
+
+# その他
+
+## あっちの MongoDB につないでみたい場合
+
+```
+sudo service mongodb stop
+ssh -C -L 27017:localhost:27017 log-iko-yo
 ```
