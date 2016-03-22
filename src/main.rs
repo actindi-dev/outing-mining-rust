@@ -7,6 +7,7 @@
 #![plugin(serde_macros)]
 
 extern crate iron;
+extern crate iron_session;
 extern crate router;
 extern crate handlebars;
 extern crate handlebars_iron as hbs;
@@ -19,25 +20,30 @@ extern crate serde_json;
 extern crate bson;
 extern crate mongo_driver;
 extern crate chrono;
-
-// #[macro_use(bson, doc)]
+extern crate urlencoded;
+extern crate uuid;
 
 use std::error::Error;
 
 use iron::prelude::*;
+use iron_session::{HashSessionStore, Sessions, TypeMapSession};
 use router::Router;
 #[cfg(feature = "watch")]
 use std::sync::Arc;
 #[cfg(feature = "watch")]
 use hbs::Watchable;
 use hbs::{HandlebarsEngine, DirectorySource};
+use uuid::Uuid;
+
 use summary::SummaryMiddleware;
 
 mod db;
 mod mongo;
 mod tail_event;
 mod view_helper;
+mod user;
 mod summary;
+mod oauth2callback;
 mod top;
 mod watch_login;
 mod hello;
@@ -45,6 +51,7 @@ mod hello;
 fn main() {
     let mut router = Router::new();
     router.get("/", top::action);
+    router.get("/oauth2callback", oauth2callback::action);
     router.get("/watch-login", watch_login::action);
     router.get("/hello", hello::action);
 
@@ -63,6 +70,11 @@ fn main() {
     let mongo_middleware = mongo::MongoMiddleware::new();
     let pool = mongo_middleware.pool.clone();
     chain.link_around(mongo_middleware);
+
+    let store: HashSessionStore<TypeMapSession> = HashSessionStore::new();
+    let uuid = Uuid::new_v4();  // 本来は固定
+    println!("uuid {}", uuid);
+    chain.around(Sessions::new(uuid.as_bytes().to_vec(), store));
 
     chain.link_around(SummaryMiddleware::new());
 

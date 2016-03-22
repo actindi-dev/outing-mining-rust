@@ -10,6 +10,7 @@ serde_type = ["handlebars-iron/serde_type"]
 
 [dependencies]
 iron = "0.2.0"
+iron_session = "0.0.4"
 router = "*"
 handlebars = "0.15.0"
 handlebars-iron = "*"
@@ -22,3 +23,5 @@ serde_macros = "*"
 chrono = "0.2.0"
 mongo_driver = "0.2.3"
 bson = "0.2.0"
+urlencoded = "*"
+uuid = "0.1.0"
