@@ -22,6 +22,8 @@ extern crate mongo_driver;
 extern crate chrono;
 extern crate urlencoded;
 extern crate uuid;
+extern crate hyper;
+extern crate url;
 
 use std::error::Error;
 
