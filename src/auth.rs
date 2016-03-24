@@ -1,14 +1,9 @@
 use iron::prelude::*;
 use iron::{Handler, AroundMiddleware};
 use iron::{headers, status};
-use iron_session::TypeMapSession;
-use plugin::Extensible;
-
-use std::sync::{Arc, RwLock};
-use typemap::ShareMap;
-
 
 use user::User;
+use util::session;
 
 pub struct AuthMiddleware {
     except_paths: Vec<String>,
@@ -23,11 +18,6 @@ impl AuthMiddleware {
     pub fn new(except_paths: Vec<String>) -> AuthMiddleware {
         AuthMiddleware { except_paths: except_paths }
     }
-}
-
-fn session(request: &Request) -> Arc<RwLock<ShareMap>> {
-    let lock = request.extensions().get::<TypeMapSession>().unwrap();
-    lock.clone()
 }
 
 impl<H: Handler> Handler for AuthHandler<H> {

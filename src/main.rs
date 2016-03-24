@@ -37,6 +37,7 @@ use hbs::Watchable;
 use hbs::{HandlebarsEngine, DirectorySource};
 use uuid::Uuid;
 
+mod util;
 mod db;
 mod mongo;
 mod tail_event;
