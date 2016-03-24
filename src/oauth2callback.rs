@@ -29,14 +29,16 @@ pub fn action(mut request: &mut Request) -> IronResult<Response> {
     if let Some(code) = get_code(&mut request) {
         if let Some(access_token) = get_access_token(&code) {
             if let Some(user) = get_user(&access_token) {
-                println!("user -> {:?}", user);
-                let lock = request.extensions().get::<TypeMapSession>().unwrap();
-                let mut map = lock.write().unwrap();
-                map.insert::<User>(user);
-                // iron 0.3 なら RedirectRaw が使える...
-                response.headers.set(headers::Location("/".to_string()));
-                response.set_mut(status::Found);
-                return Ok(response);
+                // println!("user -> {:?}", user);
+                if user.email.ends_with("@actindi.net") {
+                    let lock = request.extensions().get::<TypeMapSession>().unwrap();
+                    let mut map = lock.write().unwrap();
+                    map.insert::<User>(user);
+                    // iron 0.3 なら RedirectRaw が使える...
+                    response.headers.set(headers::Location("/".to_string()));
+                    response.set_mut(status::Found);
+                    return Ok(response);
+                }
             }
         }
     }

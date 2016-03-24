@@ -37,14 +37,13 @@ use hbs::Watchable;
 use hbs::{HandlebarsEngine, DirectorySource};
 use uuid::Uuid;
 
-use summary::SummaryMiddleware;
-
 mod db;
 mod mongo;
 mod tail_event;
 mod view_helper;
 mod user;
 mod summary;
+mod auth;
 mod oauth2callback;
 mod top;
 mod watch_login;
@@ -67,6 +66,7 @@ fn main() {
     }
 
     let mut chain = Chain::new(router);
+    chain.link_around(auth::AuthMiddleware::new(vec!["oauth2callback".to_string()]));
     chain_hbse(hbse, &mut chain);
     chain.link_around(db::DbMiddleware::new());
     let mongo_middleware = mongo::MongoMiddleware::new();
@@ -75,10 +75,9 @@ fn main() {
 
     let store: HashSessionStore<TypeMapSession> = HashSessionStore::new();
     let uuid = Uuid::new_v4();  // 本来は固定
-    println!("uuid {}", uuid);
     chain.around(Sessions::new(uuid.as_bytes().to_vec(), store));
 
-    chain.link_around(SummaryMiddleware::new());
+    chain.link_around(summary::SummaryMiddleware::new());
 
     tail_event::run(pool);
 
