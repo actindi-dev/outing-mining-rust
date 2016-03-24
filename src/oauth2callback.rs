@@ -48,14 +48,12 @@ pub fn action(mut request: &mut Request) -> IronResult<Response> {
 }
 
 fn get_code(request: &mut Request) -> Option<String> {
-    if let Ok(params) = request.get_ref::<UrlEncodedQuery>() {
-        if let Some(values) = params.get("code") {
-            if let Some(value) = values.get(0) {
-                return Some(value.clone());
-            }
-        }
-    }
-    None
+    request.get_ref::<UrlEncodedQuery>()
+           .ok()
+           .and_then(|x| x.get("code"))
+           .and_then(|x| x.get(0))
+           .map(|x| x.clone())
+
 }
 
 
