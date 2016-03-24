@@ -4,6 +4,10 @@ use iron::{headers, status};
 use iron_session::TypeMapSession;
 use plugin::Extensible;
 
+use std::sync::{Arc, RwLock};
+use typemap::ShareMap;
+
+
 use user::User;
 
 pub struct AuthMiddleware {
@@ -21,29 +25,26 @@ impl AuthMiddleware {
     }
 }
 
+fn session(request: &Request) -> Arc<RwLock<ShareMap>> {
+    let lock = request.extensions().get::<TypeMapSession>().unwrap();
+    lock.clone()
+}
+
 impl<H: Handler> Handler for AuthHandler<H> {
     fn handle(&self, request: &mut Request) -> IronResult<Response> {
-        let mut found = false;
-        {
-            let lock = request.extensions().get::<TypeMapSession>().unwrap();
-            let map = lock.read().unwrap();
-            if let Some(_) = map.get::<User>() {
-                found = true;
-            }
+        if self.except_paths.contains(&request.url.path.join("/")) {
+            return self.handler.handle(request);
         }
-        if found {
+        let session = session(request);
+        let res = if let Some(_) = session.read().unwrap().get::<User>() {
             self.handler.handle(request)
         } else {
-            if self.except_paths.contains(&request.url.path.join("/")) {
-                self.handler.handle(request)
-
-            } else {
-                let mut response = Response::new();
-                response.headers.set(headers::Location("/oauth2callback".to_string()));
-                response.set_mut(status::Found);
-                Ok(response)
-            }
-        }
+            let mut response = Response::new();
+            response.headers.set(headers::Location("/oauth2callback".to_string()));
+            response.set_mut(status::Found);
+            Ok(response)
+        };
+        res
     }
 }
 
