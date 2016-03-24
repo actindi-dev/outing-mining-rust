@@ -49,10 +49,13 @@ pub fn action(mut request: &mut Request) -> IronResult<Response> {
 
 fn get_code(request: &mut Request) -> Option<String> {
     if let Ok(params) = request.get_ref::<UrlEncodedQuery>() {
-        Some(params["code"][0].clone())
-    } else {
-        None
+        if let Some(values) = params.get("code") {
+            if let Some(value) = values.get(0) {
+                return Some(value.clone());
+            }
+        }
     }
+    None
 }
 
 
@@ -97,10 +100,12 @@ fn get_access_token(code: &str) -> Option<String> {
             let mut json_str = String::new();
             res.read_to_string(&mut json_str).unwrap();
             // println!("json_str: {:?}", json_str);
-            let json_data: JsonData = serde_json::from_str(&json_str).unwrap();
-            // println!("JsonData: {:?}", json_data);
-
-            return Some(json_data.access_token);
+            let json_data: Result<JsonData, _> = serde_json::from_str(&json_str);
+            if let Ok(json_data) = json_data {
+                // println!("JsonData: {:?}", json_data);
+                return Some(json_data.access_token);
+            }
+            return None;
         }
     };
 }
