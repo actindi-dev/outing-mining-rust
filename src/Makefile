@@ -15,8 +15,10 @@ release:
 
 deploy: release
 	ssh log-iko-yo 'mkdir -p ~/outing-mining-rust'
-	scp -C ../target/release/outing-mining-rust log-iko-yo:~/outing-mining-rust
 	scp -C -r templates ../etc ../public log-iko-yo:~/outing-mining-rust
+	ssh log-iko-yo 'sudo /usr/sbin/service outing-mining-rust stop'
+	scp -C ../target/release/outing-mining-rust log-iko-yo:~/outing-mining-rust
+	ssh log-iko-yo 'sudo /usr/sbin/service outing-mining-rust start'
 
 update:
 	cargo update
