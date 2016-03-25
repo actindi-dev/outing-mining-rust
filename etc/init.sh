@@ -28,7 +28,6 @@ GROUP=deployer
 
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
-export DB_URL
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh

@@ -14,10 +14,13 @@ multirust default nightly
 # 本番環境
 
 /etc/default/outing-mining-rust
-で接続先の DB を指定する
+で接続先の DB、OAuth 情報を指定する
 
 ```
-DB_URL="mysql://user:password@host:port/db"
+export DB_URL="mysql://user:password@host:port/db"
+export OAUTH_CLIENT_ID="xxxxxxxxxxxxxxxxxxxx"
+export OAUTH_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxx"
+export OAUTH_REDIRECT_URI="https://www.example.com/oauth2callback"
 ```
 
 init スクリプトの仕込み
