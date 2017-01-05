@@ -3,11 +3,7 @@
 // テンプレートのライブリロード
 // cargo run --features 'watch serde_type'
 
-#![feature(custom_derive, plugin, stmt_expr_attributes)]
-#![plugin(serde_macros)]
-
 extern crate iron;
-extern crate iron_session;
 extern crate router;
 extern crate handlebars;
 extern crate handlebars_iron as hbs;
@@ -28,7 +24,6 @@ extern crate url;
 use std::error::Error;
 
 use iron::prelude::*;
-use iron_session::{HashSessionStore, Sessions, TypeMapSession};
 use router::Router;
 #[cfg(feature = "watch")]
 use std::sync::Arc;
@@ -49,6 +44,8 @@ mod oauth2callback;
 mod top;
 mod watch_login;
 mod hello;
+
+include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 
 fn main() {
     let mut router = Router::new();
@@ -74,9 +71,10 @@ fn main() {
     let pool = mongo_middleware.pool.clone();
     chain.link_around(mongo_middleware);
 
-    let store: HashSessionStore<TypeMapSession> = HashSessionStore::new();
-    let uuid = Uuid::new_v4();  // 本来は固定
-    chain.around(Sessions::new(uuid.as_bytes().to_vec(), store));
+    // TODO session
+    // let store: HashSessionStore<TypeMapSession> = HashSessionStore::new();
+    // let uuid = Uuid::new_v4();  // 本来は固定
+    // chain.around(Sessions::new(uuid.as_bytes().to_vec(), store));
 
     chain.link_around(summary::SummaryMiddleware::new());
 

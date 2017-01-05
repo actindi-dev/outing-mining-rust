@@ -49,10 +49,10 @@ pub fn action(mut request: &mut Request) -> IronResult<Response> {
 
 fn get_code(request: &mut Request) -> Option<String> {
     request.get_ref::<UrlEncodedQuery>()
-           .ok()
-           .and_then(|x| x.get("code"))
-           .and_then(|x| x.get(0))
-           .map(|x| x.clone())
+        .ok()
+        .and_then(|x| x.get("code"))
+        .and_then(|x| x.get(0))
+        .map(|x| x.clone())
 
 }
 
@@ -77,9 +77,9 @@ fn get_access_token(code: &str) -> Option<String> {
                                            ("redirect_uri", &redirect_uri()),
                                            ("grant_type", "authorization_code")]);
     let res = client.post("https://accounts.google.com/o/oauth2/token")
-                    .header(ContentType("application/x-www-form-urlencoded".parse().unwrap()))
-                    .body(&*req)
-                    .send();
+        .header(ContentType("application/x-www-form-urlencoded".parse().unwrap()))
+        .body(&*req)
+        .send();
     match res {
         Err(err) => {
             println!("err: {:?}", err);
@@ -88,13 +88,6 @@ fn get_access_token(code: &str) -> Option<String> {
         Ok(mut res) => {
             // println!("ok: {:?}", res);
 
-            #[derive(Deserialize, Debug)]
-            struct JsonData {
-                access_token: String,
-                token_type: String,
-                expires_in: i32,
-                id_token: String,
-            }
             let mut json_str = String::new();
             res.read_to_string(&mut json_str).unwrap();
             // println!("json_str: {:?}", json_str);
@@ -114,8 +107,8 @@ fn get_user(access_token: &String) -> Option<User> {
     let mut headers = Headers::new();
     headers.set(Authorization(Bearer { token: access_token.to_owned() }));
     let res = client.get("https://www.googleapis.com/oauth2/v2/userinfo")
-                    .headers(headers)
-                    .send();
+        .headers(headers)
+        .send();
     match res {
         Err(err) => {
             println!("err: {:?}", err);

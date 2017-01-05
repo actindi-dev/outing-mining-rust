@@ -2,6 +2,10 @@
 name = "outing-mining-rust"
 version = "0.1.0"
 authors = ["TAHARA Yoshinori <read.eval.print@gmail.com>"]
+build = "build.rs"
+
+[build-dependencies]
+serde_codegen = "0.8"
 
 [features]
 ## create a feature in your app
@@ -9,21 +13,22 @@ watch = ["handlebars-iron/watch"]
 serde_type = ["handlebars-iron/serde_type"]
 
 [dependencies]
-iron = "0.2.0"
-iron_session = "0.0.4"
+iron = "0.4.0"
 router = "*"
 handlebars = "0.15.0"
 handlebars-iron = "*"
 mysql = "*"
 typemap = "*"
 plugin = "*"
-serde = "*"
-serde_json = "*"
-serde_macros = "*"
+serde = "0.8"
+serde_json = "0.8"
 chrono = "0.2.0"
-mongo_driver = "0.2.3"
+mongo_driver = "*"
 bson = "0.2.0"
 urlencoded = "*"
 uuid = "0.1.0"
-hyper = "0.7.0"
 url = "*"
+hyper = { version = "0.9.14", git = "https://github.com/hyperium/hyper", branch = "0.10.x" }
+
+[dependencies.session]
+git = "https://github.com/iron/session.git"

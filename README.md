@@ -1,12 +1,18 @@
 # 開発環境
 
-Rust の nightly を multirust でインストールする。
+rustup で rust をインストールする。
+https://www.rustup.rs/
 
 ```
-curl -sf https://raw.githubusercontent.com/brson/multirust/master/blastoff.sh | sh
-multirust update
-multirust default nightly
+curl https://sh.rustup.rs -sSf | sh
 ```
+
+1.14.0 を使っているので次のようにバージョンを固定する。
+
+```
+rustup override set 1.14.0
+```
+
 
 `src` ディレクトリで `make` すれば動く。
 
