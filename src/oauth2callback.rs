@@ -13,6 +13,7 @@ use hyper;
 use hyper::header::{ContentType, Headers, Authorization, Bearer};
 use url::form_urlencoded;
 use plugin::Extensible;
+use iron_sessionstorage::SessionRequestExt;
 
 pub fn action(mut request: &mut Request) -> IronResult<Response> {
     let mut response = Response::new();

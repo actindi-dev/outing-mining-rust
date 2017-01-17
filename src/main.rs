@@ -60,9 +60,9 @@ fn main() {
         hello: get "/hello" => hello::action,
     );
 
-    let mut hbse = HandlebarsEngine::new2();
+    let mut hbse = HandlebarsEngine::new();
     hbse.add(Box::new(DirectorySource::new("./templates/", ".hbs")));
-    hbse.registry.write().unwrap().register_helper("commify", Box::new(view_helper::commify));
+    hbse.handlebars_mut().register_helper("commify", view_helper::commify);
 
     // load templates from all registered sources
     if let Err(r) = hbse.reload() {
@@ -70,8 +70,8 @@ fn main() {
     }
 
     let mut chain = Chain::new(router);
+    chain.link_after(hbse);
     chain.link_around(auth::AuthMiddleware::new(vec!["oauth2callback".to_string()]));
-    chain_hbse(hbse, &mut chain);
     chain.link_around(db::DbMiddleware::new());
     let mongo_middleware = mongo::MongoMiddleware::new();
     let pool = mongo_middleware.pool.clone();

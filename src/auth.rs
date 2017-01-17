@@ -1,6 +1,7 @@
 use iron::prelude::*;
 use iron::{Handler, AroundMiddleware};
 use iron::{headers, status};
+use iron_sessionstorage::traits::*;
 
 pub struct AuthMiddleware {
     except_paths: Vec<String>,
@@ -19,10 +20,10 @@ impl AuthMiddleware {
 
 impl<H: Handler> Handler for AuthHandler<H> {
     fn handle(&self, request: &mut Request) -> IronResult<Response> {
-        if self.except_paths.contains(&request.url.path.join("/")) {
+        if self.except_paths.contains(&request.url.path().join("/")) {
             return self.handler.handle(request);
         }
-        let res = if let Some(_) = request.session().get::<::User>() {
+        let res = if try!(request.session().get::<::User>()).is_some() {
             self.handler.handle(request)
         } else {
             let mut response = Response::new();

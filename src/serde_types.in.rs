@@ -29,8 +29,8 @@ pub struct User {
 #[derive(Serialize, Debug)]
 struct OfDate {
     date: String,
-    success: HashMap<String, usize>,
-    failed: HashMap<String, usize>,
+    success: std::collections::HashMap<String, usize>,
+    failed: std::collections::HashMap<String, usize>,
 }
 
 #[derive(Serialize, Debug)]

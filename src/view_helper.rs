@@ -3,14 +3,9 @@ use std::str;
 
 use handlebars::{Handlebars, RenderError, RenderContext, Helper, Context, JsonRender};
 
-pub fn commify(c: &Context, h: &Helper, _: &Handlebars, rc: &mut RenderContext)
-               -> Result<(), RenderError> {
-    let param = h.params().get(0).unwrap();
-
-    // get value from context data
-    // rc.get_path() is current json parent path, you should always use it like this
-    // param is the key of value you want to display
-    let s = c.navigate(rc.get_path(), param).render();
+pub fn commify(h: &Helper, _: &Handlebars, rc: &mut RenderContext) -> Result<(), RenderError> {
+    let param = h.param(0).unwrap();
+    let s = param.value().as_string().unwrap();
 
     let mut result = String::with_capacity(s.len() + ((s.len() - 1) / 3));
     let first = s.len() % 3;
