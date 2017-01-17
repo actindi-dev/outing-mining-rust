@@ -13,22 +13,22 @@ watch = ["handlebars-iron/watch"]
 serde_type = ["handlebars-iron/serde_type"]
 
 [dependencies]
-iron = "0.4.0"
-router = "*"
-handlebars = "0.15.0"
-handlebars-iron = "*"
-mysql = "*"
-typemap = "*"
-plugin = "*"
+iron = "0.5"
+router = "0.5"
+handlebars = "0.24"
+handlebars-iron = "0.22"
+mysql = "8.0"
+typemap = "0.3"
+plugin = "0.2"
 serde = "0.8"
 serde_json = "0.8"
-chrono = "0.2.0"
-mongo_driver = "*"
-bson = "0.2.0"
-urlencoded = "*"
-uuid = "0.1.0"
-url = "*"
-hyper = { version = "0.9.14", git = "https://github.com/hyperium/hyper", branch = "0.10.x" }
+chrono = "0.2"
+mongo_driver = "0.4"
+bson = "0.3"
+urlencoded = "0.5"
+uuid = "0.3"
+url = "1.2"
+hyper = "0.10"
 
 [dependencies.session]
 git = "https://github.com/iron/session.git"
