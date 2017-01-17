@@ -26,12 +26,12 @@ pub fn action(request: &mut Request) -> IronResult<Response> {
     Ok(response)
 }
 
-fn top_data(vec: &Vec<OfDate>) -> Vec<TopData> {
+fn top_data(vec: &Vec<::OfDate>) -> Vec<::TopData> {
     let mut results = Vec::new();
     for of_date in vec {
         let (sv, sc) = sort_and_total(&of_date.success);
         let (fv, fc) = sort_and_total(&of_date.failed);
-        results.push(TopData {
+        results.push(::TopData {
             date: of_date.date.clone(),
             success_count: sc,
             success_nip: of_date.success.len(),
@@ -45,11 +45,11 @@ fn top_data(vec: &Vec<OfDate>) -> Vec<TopData> {
     results
 }
 
-fn sort_and_total(map: &HashMap<String, usize>) -> (Vec<IpCount>, usize) {
+fn sort_and_total(map: &HashMap<String, usize>) -> (Vec<::IpCount>, usize) {
     let mut vec = Vec::new();
     let mut total = 0;
     for (ip, count) in map {
-        vec.push(IpCount {
+        vec.push(::IpCount {
             ip: ip.clone(),
             count: *count,
         });
@@ -60,12 +60,12 @@ fn sort_and_total(map: &HashMap<String, usize>) -> (Vec<IpCount>, usize) {
     (vec, total)
 }
 
-fn graph_data(vec: &Vec<OfDate>) -> String {
+fn graph_data(vec: &Vec<::OfDate>) -> String {
     let vec: Vec<String> = vec.iter().map(|i| format!("{}", i.failed.len())).collect();
     vec.join(", ")
 }
 
-fn watch_login_data(mongo: &Client) -> Vec<OfDate> {
+fn watch_login_data(mongo: &Client) -> Vec<::OfDate> {
     let end = Local::today() - Duration::days(1);
     #[cfg(not(debug_assertions))]
     let mut date = end - Duration::days(29);
@@ -75,7 +75,7 @@ fn watch_login_data(mongo: &Client) -> Vec<OfDate> {
 
     while date <= end {
         let (success, failed) = watch_log_per_date(&mongo, date);
-        vec.push(OfDate {
+        vec.push(::OfDate {
             date: date.format("%Y/%m/%d").to_string(),
             success: success,
             failed: failed,

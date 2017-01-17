@@ -8,15 +8,11 @@ use hbs::Template;
 
 use iron::prelude::*;
 use iron::{headers, status};
-use iron_session::TypeMapSession;
 use urlencoded::UrlEncodedQuery;
 use hyper;
-use hyper::net::Openssl;
 use hyper::header::{ContentType, Headers, Authorization, Bearer};
 use url::form_urlencoded;
 use plugin::Extensible;
-
-use user::User;
 
 pub fn action(mut request: &mut Request) -> IronResult<Response> {
     let mut response = Response::new();
@@ -31,10 +27,8 @@ pub fn action(mut request: &mut Request) -> IronResult<Response> {
             if let Some(user) = get_user(&access_token) {
                 // println!("user -> {:?}", user);
                 if user.email.ends_with("@actindi.net") {
-                    let lock = request.extensions().get::<TypeMapSession>().unwrap();
-                    let mut map = lock.write().unwrap();
-                    map.insert::<User>(user);
-                    // iron 0.3 なら RedirectRaw が使える...
+                    try!(request.session().set(user));
+                    // TODO iron 0.3 なら RedirectRaw が使える...
                     response.headers.set(headers::Location("/".to_string()));
                     response.set_mut(status::Found);
                     return Ok(response);
@@ -70,12 +64,12 @@ fn redirect_uri() -> String {
 }
 
 fn get_access_token(code: &str) -> Option<String> {
-    let client = hyper::Client::with_connector(hyper::net::HttpsConnector::new(Openssl::default()));
-    let req = form_urlencoded::serialize(&[("code", code),
-                                           ("client_id", &client_id()),
-                                           ("client_secret", &client_secret()),
-                                           ("redirect_uri", &redirect_uri()),
-                                           ("grant_type", "authorization_code")]);
+    let client = hyper::Client::new();
+    let req = form_urlencoded::Serializer::new(&[("code", code),
+                                                 ("client_id", &client_id()),
+                                                 ("client_secret", &client_secret()),
+                                                 ("redirect_uri", &redirect_uri()),
+                                                 ("grant_type", "authorization_code")]);
     let res = client.post("https://accounts.google.com/o/oauth2/token")
         .header(ContentType("application/x-www-form-urlencoded".parse().unwrap()))
         .body(&*req)
@@ -91,7 +85,7 @@ fn get_access_token(code: &str) -> Option<String> {
             let mut json_str = String::new();
             res.read_to_string(&mut json_str).unwrap();
             // println!("json_str: {:?}", json_str);
-            let json_data: Result<JsonData, _> = serde_json::from_str(&json_str);
+            let json_data: Result<::JsonData, _> = serde_json::from_str(&json_str);
             if let Ok(json_data) = json_data {
                 // println!("JsonData: {:?}", json_data);
                 return Some(json_data.access_token);
@@ -101,8 +95,8 @@ fn get_access_token(code: &str) -> Option<String> {
     };
 }
 
-fn get_user(access_token: &String) -> Option<User> {
-    let client = hyper::Client::with_connector(hyper::net::HttpsConnector::new(Openssl::default()));
+fn get_user(access_token: &String) -> Option<::User> {
+    let client = hyper::Client::new();
 
     let mut headers = Headers::new();
     headers.set(Authorization(Bearer { token: access_token.to_owned() }));
@@ -120,7 +114,7 @@ fn get_user(access_token: &String) -> Option<User> {
             res.read_to_string(&mut json_str).unwrap();
             // println!("json_str: {:?}", json_str);
 
-            let user: User = serde_json::from_str(&json_str).unwrap();
+            let user: ::User = serde_json::from_str(&json_str).unwrap();
 
             return Some(user);
         }

@@ -15,6 +15,7 @@ serde_type = ["handlebars-iron/serde_type"]
 [dependencies]
 iron = "0.5"
 router = "0.5"
+iron-sessionstorage = "0.6"
 handlebars = "0.24"
 handlebars-iron = "0.22"
 mysql = "8.0"
@@ -29,6 +30,3 @@ urlencoded = "0.5"
 uuid = "0.3"
 url = "1.2"
 hyper = "0.10"
-
-[dependencies.session]
-git = "https://github.com/iron/session.git"

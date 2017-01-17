@@ -4,6 +4,8 @@
 // cargo run --features 'watch serde_type'
 
 extern crate iron;
+extern crate iron_sessionstorage;
+#[macro_use]
 extern crate router;
 extern crate handlebars;
 extern crate handlebars_iron as hbs;
@@ -31,8 +33,10 @@ use std::sync::Arc;
 use hbs::Watchable;
 use hbs::{HandlebarsEngine, DirectorySource};
 use uuid::Uuid;
+use iron_sessionstorage::traits::*;
+use iron_sessionstorage::SessionStorage;
+use iron_sessionstorage::backends::SignedCookieBackend;
 
-mod util;
 mod db;
 mod mongo;
 mod tail_event;
@@ -45,14 +49,16 @@ mod top;
 mod watch_login;
 mod hello;
 
+
 include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 
 fn main() {
-    let mut router = Router::new();
-    router.get("/", top::action);
-    router.get("/oauth2callback", oauth2callback::action);
-    router.get("/watch-login", watch_login::action);
-    router.get("/hello", hello::action);
+    let router = router!(
+        top: get "/" => top::action,
+        oauth2callback: get "/oauth2callback" => oauth2callback::action,
+        watch_login: get "/watch-login" => watch_login::action,
+        hello: get "/hello" => hello::action,
+    );
 
     let mut hbse = HandlebarsEngine::new2();
     hbse.add(Box::new(DirectorySource::new("./templates/", ".hbs")));
@@ -75,6 +81,8 @@ fn main() {
     // let store: HashSessionStore<TypeMapSession> = HashSessionStore::new();
     // let uuid = Uuid::new_v4();  // 本来は固定
     // chain.around(Sessions::new(uuid.as_bytes().to_vec(), store));
+    let uuid = Uuid::new_v4();  // 本来は固定
+    chain.link_around(SessionStorage::new(SignedCookieBackend::new(uuid)));
 
     chain.link_around(summary::SummaryMiddleware::new());
 

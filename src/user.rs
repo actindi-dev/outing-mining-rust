@@ -7,6 +7,6 @@ use iron::typemap::Key;
 // }
 //
 
-impl Key for User {
-    type Value = User;
+impl Key for ::User {
+    type Value = ::User;
 }

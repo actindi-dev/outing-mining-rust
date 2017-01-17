@@ -12,7 +12,7 @@ use chrono::{Datelike, DateTime, Duration, Local, Timelike};
 const REFRESH_PERIOD_SECONDS: i64 = 60 * 60;
 
 pub struct SummaryHolder {
-    summaries: Vec<Summary>,
+    summaries: Vec<::Summary>,
     updated_at: DateTime<Local>,
 }
 
@@ -34,9 +34,12 @@ impl SummaryHolder {
     }
 }
 
-impl Summary {
-    pub fn new(name: &'static str, start_end_sql: &'static str, all_sql: &'static str) -> Summary {
-        Summary {
+impl ::Summary {
+    pub fn new(name: &'static str,
+               start_end_sql: &'static str,
+               all_sql: &'static str)
+               -> ::Summary {
+        ::Summary {
             name: name,
             this_week: 0,
             last_week: 0,
@@ -110,41 +113,43 @@ impl Summary {
 }
 
 
-fn make_summaries() -> Vec<Summary> {
-    vec![Summary::new("口こみ",
-                      "select count(*) as count from experiences
+fn make_summaries() -> Vec<::Summary> {
+    vec![::Summary::new("口こみ",
+                        "select count(*) as count from experiences
              where created_at \
-                       between ? and ?
+                         between ? and ?
              and publish = 1 and private = 0",
-                      "select count(*) as count from experiences
-             where publish = 1 \
-                       and private = 0"),
-         Summary::new("ありがとう",
-                      "select count(*) as count from thanks
+                        "select count(*) as count from experiences
+             where publish = \
+                         1 and private = 0"),
+         ::Summary::new("ありがとう",
+                        "select count(*) as count from thanks
              where created_at \
-                       between ? and ?",
-                      "select count(*) as count from thanks"),
-         Summary::new("行きたい！",
-                      "select count(*) count from favorites
+                         between ? and ?",
+                        "select count(*) as count from thanks"),
+         ::Summary::new("行きたい！",
+                        "select count(*) count from favorites
              where created_at \
-                       between ? and ?",
-                      "select count(*) as count from favorites"),
-         Summary::new("ユーザ",
-                      "select count(*) as count from users
-             where created_at between \
-                       ? and ?
-             and type='Member' and activated_at is not null",
-                      "select count(*) as count from users
-             where type='Member' and \
-                       activated_at is not null"),
-         Summary::new("プレゼンタ",
-                      "select count(*) as count from users
-             where created_at between \
-                       ? and ?
-             and type='Provider' and activated_at is not null",
-                      "select count(*) as count from users
+                         between ? and ?",
+                        "select count(*) as count from favorites"),
+         ::Summary::new("ユーザ",
+                        "select count(*) as count from users
+             where created_at \
+                         between ? and ?
+             and type='Member' and activated_at is not \
+                         null",
+                        "select count(*) as count from users
+             where type='Member' \
+                         and activated_at is not null"),
+         ::Summary::new("プレゼンタ",
+                        "select count(*) as count from users
+             where created_at \
+                         between ? and ?
+             and type='Provider' and activated_at is \
+                         not null",
+                        "select count(*) as count from users
              where type='Provider' \
-                       and activated_at is not null")]
+                         and activated_at is not null")]
 }
 
 
@@ -187,11 +192,11 @@ impl<H: Handler> Handler for MyHandler<H> {
 }
 
 pub trait SummaryExtension {
-    fn summaries(&self) -> Vec<Summary>;
+    fn summaries(&self) -> Vec<::Summary>;
 }
 
 impl<'a, 'b> SummaryExtension for Request<'a, 'b> {
-    fn summaries(&self) -> Vec<Summary> {
+    fn summaries(&self) -> Vec<::Summary> {
         let holder = self.extensions().get::<SummaryMiddleware>().unwrap();
         let mut holder = holder.lock().unwrap();
         holder.refresh();

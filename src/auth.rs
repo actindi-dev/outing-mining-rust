@@ -2,9 +2,6 @@ use iron::prelude::*;
 use iron::{Handler, AroundMiddleware};
 use iron::{headers, status};
 
-use user::User;
-use util::session;
-
 pub struct AuthMiddleware {
     except_paths: Vec<String>,
 }
@@ -25,8 +22,7 @@ impl<H: Handler> Handler for AuthHandler<H> {
         if self.except_paths.contains(&request.url.path.join("/")) {
             return self.handler.handle(request);
         }
-        let session = session(request);
-        let res = if let Some(_) = session.read().unwrap().get::<User>() {
+        let res = if let Some(_) = request.session().get::<::User>() {
             self.handler.handle(request)
         } else {
             let mut response = Response::new();
