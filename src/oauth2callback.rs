@@ -1,9 +1,9 @@
 use std::env;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::io::Read;
 
 use serde_json;
-use serde_json::value;
+use serde_json::value::{self, Value};
 use hbs::Template;
 
 use iron::prelude::*;
@@ -15,13 +15,15 @@ use url::form_urlencoded;
 use plugin::Extensible;
 use iron_sessionstorage::SessionRequestExt;
 
+static TYPES: &'static str = "serde_json";
+
 pub fn action(mut request: &mut Request) -> IronResult<Response> {
     let mut response = Response::new();
-    let mut data = HashMap::new();
-    data.insert("title", value::to_value(&"oauth".to_string()));
+    let mut data = BTreeMap::new();
+    data.insert("title".to_string(), value::to_value(&"oauth"));
 
-    data.insert("client_id", value::to_value(&client_id()));
-    data.insert("redirect_uri", value::to_value(&redirect_uri()));
+    data.insert("client_id".to_string(), value::to_value(client_id()));
+    data.insert("redirect_uri".to_string(), value::to_value(redirect_uri()));
 
     if let Some(code) = get_code(&mut request) {
         if let Some(access_token) = get_access_token(&code) {

@@ -27,6 +27,6 @@ chrono = "0.2"
 mongo_driver = "0.4"
 bson = "0.3"
 urlencoded = "0.5"
-uuid = "0.3"
+uuid = { version="0.3", features=["v4"] }
 url = "1.2"
 hyper = "0.10"

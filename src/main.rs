@@ -81,7 +81,7 @@ fn main() {
     // let store: HashSessionStore<TypeMapSession> = HashSessionStore::new();
     // let uuid = Uuid::new_v4();  // 本来は固定
     // chain.around(Sessions::new(uuid.as_bytes().to_vec(), store));
-    let uuid = Uuid::new_v4();  // 本来は固定
+    let uuid = Uuid::new_v4().as_bytes();  // 本来は固定
     chain.link_around(SessionStorage::new(SignedCookieBackend::new(uuid)));
 
     chain.link_around(summary::SummaryMiddleware::new());
