@@ -66,11 +66,13 @@ fn redirect_uri() -> String {
 
 fn get_access_token(code: &str) -> Option<String> {
     let client = hyper::Client::new();
-    let req = form_urlencoded::Serializer::new(&[("code", code),
-                                                 ("client_id", &client_id()),
-                                                 ("client_secret", &client_secret()),
-                                                 ("redirect_uri", &redirect_uri()),
-                                                 ("grant_type", "authorization_code")]);
+    let req = form_urlencoded::Serializer::new(String::new())
+        .append_pair("code", code)
+        .append_pair("client_id", &client_id())
+        .append_pair("client_secret", &client_secret())
+        .append_pair("redirect_uri", &redirect_uri())
+        .append_pair("grant_type", "authorization_code")
+        .finish();
     let res = client.post("https://accounts.google.com/o/oauth2/token")
         .header(ContentType("application/x-www-form-urlencoded".parse().unwrap()))
         .body(&*req)

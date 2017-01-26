@@ -62,7 +62,7 @@ fn main() {
 
     let mut hbse = HandlebarsEngine::new();
     hbse.add(Box::new(DirectorySource::new("./templates/", ".hbs")));
-    hbse.handlebars_mut().register_helper("commify", view_helper::commify);
+    hbse.handlebars_mut().register_helper("commify", Box::new(view_helper::commify));
 
     // load templates from all registered sources
     if let Err(r) = hbse.reload() {
