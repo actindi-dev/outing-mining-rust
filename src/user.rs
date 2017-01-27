@@ -1,6 +1,12 @@
-extern crate iron_sessionstorage;
+use iron_sessionstorage;
 
-impl iron_sessionstorage::Value for ::User {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct User {
+    pub id: String,
+    pub email: String,
+}
+
+impl iron_sessionstorage::Value for User {
     fn get_key() -> &'static str {
         "logged_in_user"
     }
@@ -12,7 +18,7 @@ impl iron_sessionstorage::Value for ::User {
             None
         } else {
             let mut id_email = value.split_whitespace();
-            Some(::User {
+            Some(User {
                 id: id_email.next().unwrap().to_string(),
                 email: id_email.next().unwrap().to_string(),
             })

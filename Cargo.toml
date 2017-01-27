@@ -2,10 +2,6 @@
 name = "outing-mining-rust"
 version = "0.1.0"
 authors = ["TAHARA Yoshinori <read.eval.print@gmail.com>"]
-build = "build.rs"
-
-[build-dependencies]
-serde_codegen = "0.8"
 
 [features]
 ## create a feature in your app
@@ -22,6 +18,7 @@ mysql = "8.0"
 typemap = "0.3"
 plugin = "0.2"
 serde = "0.8"
+serde_derive = "0.8"
 serde_json = "0.8"
 chrono = "0.2"
 mongo_driver = "0.4"

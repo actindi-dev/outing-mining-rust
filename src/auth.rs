@@ -3,6 +3,8 @@ use iron::{Handler, AroundMiddleware};
 use iron::{headers, status};
 use iron_sessionstorage::traits::*;
 
+use user::User;
+
 pub struct AuthMiddleware {
     except_paths: Vec<String>,
 }
@@ -23,7 +25,7 @@ impl<H: Handler> Handler for AuthHandler<H> {
         if self.except_paths.contains(&request.url.path().join("/")) {
             return self.handler.handle(request);
         }
-        let res = if try!(request.session().get::<::User>()).is_some() {
+        let res = if try!(request.session().get::<User>()).is_some() {
             self.handler.handle(request)
         } else {
             let mut response = Response::new();

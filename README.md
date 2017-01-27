@@ -7,10 +7,10 @@ https://www.rustup.rs/
 curl https://sh.rustup.rs -sSf | sh
 ```
 
-1.14.0 を使っているので次のようにバージョンを固定する。
+nightly-2017-01-24 を使っているので次のようにバージョンを固定する。
 
 ```
-rustup override set 1.14.0
+rustup override set nightly-2017-01-24
 ```
 
 

@@ -1,21 +1,19 @@
 use std::env;
-use std::collections::BTreeMap;
 use std::io::Read;
-
 use serde_json;
-use serde_json::value::{self, Value};
-use hbs::Template;
+use serde_json::value;
+use std::collections::BTreeMap;
 
+use hbs::Template;
 use iron::prelude::*;
 use iron::{headers, status};
 use urlencoded::UrlEncodedQuery;
 use hyper;
 use hyper::header::{ContentType, Headers, Authorization, Bearer};
 use url::form_urlencoded;
-use plugin::Extensible;
 use iron_sessionstorage::SessionRequestExt;
 
-static TYPES: &'static str = "serde_json";
+use user::User;
 
 pub fn action(mut request: &mut Request) -> IronResult<Response> {
     let mut response = Response::new();
@@ -66,6 +64,14 @@ fn redirect_uri() -> String {
     env::var("OAUTH_REDIRECT_URI").ok().unwrap()
 }
 
+#[derive(Deserialize, Debug)]
+struct JsonData {
+    access_token: String,
+    token_type: String,
+    expires_in: i32,
+    id_token: String,
+}
+
 fn get_access_token(code: &str) -> Option<String> {
     let client = hyper::Client::new();
     let req = form_urlencoded::Serializer::new(String::new())
@@ -86,11 +92,10 @@ fn get_access_token(code: &str) -> Option<String> {
         }
         Ok(mut res) => {
             // println!("ok: {:?}", res);
-
             let mut json_str = String::new();
             res.read_to_string(&mut json_str).unwrap();
             // println!("json_str: {:?}", json_str);
-            let json_data: Result<::JsonData, _> = serde_json::from_str(&json_str);
+            let json_data: Result<JsonData, _> = serde_json::from_str(&json_str);
             if let Ok(json_data) = json_data {
                 // println!("JsonData: {:?}", json_data);
                 return Some(json_data.access_token);
@@ -100,7 +105,7 @@ fn get_access_token(code: &str) -> Option<String> {
     };
 }
 
-fn get_user(access_token: &String) -> Option<::User> {
+fn get_user(access_token: &String) -> Option<User> {
     let client = hyper::Client::new();
 
     let mut headers = Headers::new();
@@ -119,7 +124,7 @@ fn get_user(access_token: &String) -> Option<::User> {
             res.read_to_string(&mut json_str).unwrap();
             // println!("json_str: {:?}", json_str);
 
-            let user: ::User = serde_json::from_str(&json_str).unwrap();
+            let user: User = serde_json::from_str(&json_str).unwrap();
 
             return Some(user);
         }

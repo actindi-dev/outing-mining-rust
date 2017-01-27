@@ -1,8 +1,8 @@
+#![cfg_attr(all(feature="serde_type"), feature(proc_macro))]
 // cargo run --features 'serde_type'
 //
 // テンプレートのライブリロード
 // cargo run --features 'watch serde_type'
-
 extern crate iron;
 extern crate iron_sessionstorage;
 #[macro_use]
@@ -12,7 +12,8 @@ extern crate handlebars_iron as hbs;
 extern crate mysql;
 extern crate typemap;
 extern crate plugin;
-extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 extern crate serde_json;
 #[macro_use(bson, doc)]
 extern crate bson;
@@ -26,14 +27,12 @@ extern crate url;
 use std::error::Error;
 
 use iron::prelude::*;
-use router::Router;
 #[cfg(feature = "watch")]
 use std::sync::Arc;
 #[cfg(feature = "watch")]
 use hbs::Watchable;
 use hbs::{HandlebarsEngine, DirectorySource};
 use uuid::Uuid;
-use iron_sessionstorage::traits::*;
 use iron_sessionstorage::SessionStorage;
 use iron_sessionstorage::backends::SignedCookieBackend;
 
@@ -48,9 +47,6 @@ mod oauth2callback;
 mod top;
 mod watch_login;
 mod hello;
-
-
-include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 
 fn main() {
     let router = router!(
@@ -81,7 +77,7 @@ fn main() {
     // let store: HashSessionStore<TypeMapSession> = HashSessionStore::new();
     // let uuid = Uuid::new_v4();  // 本来は固定
     // chain.around(Sessions::new(uuid.as_bytes().to_vec(), store));
-    let uuid = Uuid::new_v4().as_bytes();  // 本来は固定
+    let uuid = Uuid::new_v4().as_bytes().to_vec();  // 本来は固定
     chain.link_around(SessionStorage::new(SignedCookieBackend::new(uuid)));
 
     chain.link_around(summary::SummaryMiddleware::new());

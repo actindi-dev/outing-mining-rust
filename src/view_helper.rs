@@ -1,11 +1,10 @@
-use std::io::Write;
 use std::str;
 
-use handlebars::{Handlebars, RenderError, RenderContext, Helper, Context, JsonRender};
+use handlebars::{Handlebars, RenderError, RenderContext, Helper};
 
 pub fn commify(h: &Helper, _: &Handlebars, rc: &mut RenderContext) -> Result<(), RenderError> {
     let param = h.param(0).unwrap();
-    let s = param.value().as_string().unwrap();
+    let s = param.value().to_string();
 
     let mut result = String::with_capacity(s.len() + ((s.len() - 1) / 3));
     let first = s.len() % 3;

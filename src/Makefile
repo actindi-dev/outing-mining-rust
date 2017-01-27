@@ -5,13 +5,13 @@ all:
 	OAUTH_CLIENT_ID=$(OAUTH_CLIENT_ID) \
 	OAUTH_CLIENT_SECRET=$(OAUTH_CLIENT_SECRET) \
 	OAUTH_REDIRECT_URI=$(OAUTH_REDIRECT_URI) \
-	cargo run --features 'watch'
+	cargo run --features 'watch serde_type'
 
 run-release:
-	RUST_BACKTRACE=1 cargo run --release
+	RUST_BACKTRACE=1 cargo run --features 'serde_type' --release
 
 release:
-	cargo build --release
+	cargo build --release --features 'serde_type'
 
 deploy: release
 	ssh log-iko-yo 'mkdir -p ~/outing-mining-rust'
