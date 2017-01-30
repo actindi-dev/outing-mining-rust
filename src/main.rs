@@ -67,17 +67,13 @@ fn main() {
     }
 
     let mut chain = Chain::new(router);
-    chain.link_after(hbse);
     chain.link_around(auth::AuthMiddleware::new(vec!["oauth2callback".to_string()]));
+    chain_hbse(hbse, &mut chain);
     chain.link_around(db::DbMiddleware::new());
     let mongo_middleware = mongo::MongoMiddleware::new();
     let pool = mongo_middleware.pool.clone();
     chain.link_around(mongo_middleware);
 
-    // TODO session
-    // let store: HashSessionStore<TypeMapSession> = HashSessionStore::new();
-    // let uuid = Uuid::new_v4();  // 本来は固定
-    // chain.around(Sessions::new(uuid.as_bytes().to_vec(), store));
     let uuid = Uuid::new_v4().as_bytes().to_vec();  // 本来は固定
     chain.link_around(SessionStorage::new(SignedCookieBackend::new(uuid)));
 
