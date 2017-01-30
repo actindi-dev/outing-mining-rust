@@ -15,6 +15,11 @@ nightly-2017-01-24 を使っているので次のようにバージョンを固�
 rustup override set nightly-2017-01-24
 ```
 
+## nginx
+
+etc/outing.minig.local.conf を nginx に読み込ませるようにする。
+
+
 ## 開発用 OAuth の設定
 
 https://console.developers.google.com/apis/dashboard で新しいプロジェクトを作成する。
@@ -25,16 +30,16 @@ https://console.developers.google.com/apis/dashboard で新しいプロジェク
   * 名前
     * 任意
   * 承認済みの JavaScript 生成元
-    * http://127.0.0.1:1958
+    * http://127.0.0.1:19588
   * 承認済みのリダイレクト URI
-    * http://127.0.0.1:1958/oauth2callback
+    * http://127.0.0.1:19588/oauth2callback
 
 google-oauth.mk に クライアントID、クライアント シークレット、承認済みのリダイレクト URI を書く。
 
 ```
 OAUTH_CLIENT_ID="999999999999-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com"
 OAUTH_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxx"
-OAUTH_REDIRECT_URI="http://localhost:1958/oauth2callback"
+OAUTH_REDIRECT_URI="http://127.0.0.1:19588/oauth2callback"
 ```
 
 ## ビルド
