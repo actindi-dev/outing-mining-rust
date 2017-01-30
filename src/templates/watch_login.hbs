@@ -1,4 +1,4 @@
-{{#partial page}}
+{{#*inline "page"}}
 <h1>ログイン監視</h1>
 <h2>失敗数</h2>
 <div id="graph"></div>
@@ -38,5 +38,5 @@
 <div data-dataset="[{{graph_data}}]">
   <script src="/js/watch-login.js" charset="utf-8"></script>
 </div>
-{{/partial}}
+{{/inline}}
 {{~> layout ~}}
