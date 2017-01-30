@@ -22,6 +22,7 @@ extern crate chrono;
 extern crate urlencoded;
 extern crate uuid;
 extern crate hyper;
+extern crate hyper_native_tls;
 extern crate url;
 
 use std::error::Error;

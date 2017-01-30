@@ -27,3 +27,4 @@ urlencoded = "0.5"
 uuid = { version="0.3", features=["v4"] }
 url = "1.2"
 hyper = "0.10"
+hyper-native-tls = "0.2"
