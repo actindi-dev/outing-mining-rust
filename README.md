@@ -1,12 +1,48 @@
 # 開発環境
 
-Rust の nightly を multirust でインストールする。
+## コンパイラ
+
+rustup で rust をインストールする。
+https://www.rustup.rs/
 
 ```
-curl -sf https://raw.githubusercontent.com/brson/multirust/master/blastoff.sh | sh
-multirust update
-multirust default nightly
+curl https://sh.rustup.rs -sSf | sh
 ```
+
+nightly-2017-01-24 を使っているので次のようにバージョンを固定する。
+
+```
+rustup override set nightly-2017-01-24
+```
+
+## nginx
+
+etc/outing.minig.local.conf を nginx に読み込ませるようにする。
+
+
+## 開発用 OAuth の設定
+
+https://console.developers.google.com/apis/dashboard で新しいプロジェクトを作成する。
+
+* 認証情報
+  * アプリケーションの種類
+    * OAuth クライアント ID
+  * 名前
+    * 任意
+  * 承認済みの JavaScript 生成元
+    * http://127.0.0.1:19588
+  * 承認済みのリダイレクト URI
+    * http://127.0.0.1:19588/oauth2callback
+
+google-oauth.mk に クライアントID、クライアント シークレット、承認済みのリダイレクト URI を書く。
+
+```
+OAUTH_CLIENT_ID="999999999999-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com"
+OAUTH_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxx"
+OAUTH_REDIRECT_URI="http://127.0.0.1:19588/oauth2callback"
+```
+
+## ビルド
 
 `src` ディレクトリで `make` すれば動く。
 

@@ -82,33 +82,41 @@ impl Summary {
         self.this_month = self.start_end_count(&pool, this_month_start, this_month_end);
         self.last_month = self.start_end_count(&pool, last_month_start, last_month_end);
 
-        self.week_percent =
-            if self.last_week == 0 {
-                "-".to_string()
-            } else {
-                format!("{:.*}", 1, self.this_week as f32 / self.last_week as f32 * 100f32)
-            };
-        self.month_percent =
-            if self.last_month == 0 {
-                "-".to_string()
-            } else {
-                format!("{:.*}", 1, self.this_month as f32 / self.last_month as f32 * 100f32)
-            };
+        self.week_percent = if self.last_week == 0 {
+            "-".to_string()
+        } else {
+            format!("{:.*}",
+                    1,
+                    self.this_week as f32 / self.last_week as f32 * 100f32)
+        };
+        self.month_percent = if self.last_month == 0 {
+            "-".to_string()
+        } else {
+            format!("{:.*}",
+                    1,
+                    self.this_month as f32 / self.last_month as f32 * 100f32)
+        };
     }
 
-    fn start_end_count(&self, pool: &Arc<Pool>, start: DateTime<Local>, end: DateTime<Local>) -> u32 {
+    fn start_end_count(&self,
+                       pool: &Arc<Pool>,
+                       start: DateTime<Local>,
+                       end: DateTime<Local>)
+                       -> u32 {
         let start = Value::Date(start.year() as u16,
                                 start.month() as u8,
                                 start.day() as u8,
                                 start.hour() as u8,
                                 start.minute() as u8,
-                                start.second() as u8, 0);
+                                start.second() as u8,
+                                0);
         let end = Value::Date(end.year() as u16,
                               end.month() as u8,
                               end.day() as u8,
                               end.hour() as u8,
                               end.minute() as u8,
-                              end.second() as u8, 0);
+                              end.second() as u8,
+                              0);
         let mut result = pool.prep_exec(self.start_end_sql, (start, end)).unwrap();
         let row = result.next().unwrap().ok().unwrap();
         from_row::<u32>(row)
@@ -117,43 +125,44 @@ impl Summary {
 
 
 fn make_summaries() -> Vec<Summary> {
-    vec!(
-        Summary::new(
-            "口こみ",
-            "select count(*) as count from experiences
-             where created_at between ? and ?
+    vec![Summary::new("口こみ",
+                      "select count(*) as count from experiences
+             where created_at \
+                       between ? and ?
              and publish = 1 and private = 0",
-            "select count(*) as count from experiences
-             where publish = 1 and private = 0"),
-        Summary::new(
-            "ありがとう",
-            "select count(*) as count from thanks
-             where created_at between ? and ?",
-            "select count(*) as count from thanks"),
-        Summary::new(
-            "行きたい！",
-            "select count(*) count from favorites
-             where created_at between ? and ?",
-            "select count(*) as count from favorites"),
-        Summary::new(
-            "ユーザ",
-            "select count(*) as count from users
-             where created_at between ? and ?
+                      "select count(*) as count from experiences
+             where publish = 1 \
+                       and private = 0"),
+         Summary::new("ありがとう",
+                      "select count(*) as count from thanks
+             where created_at \
+                       between ? and ?",
+                      "select count(*) as count from thanks"),
+         Summary::new("行きたい！",
+                      "select count(*) count from favorites
+             where created_at \
+                       between ? and ?",
+                      "select count(*) as count from favorites"),
+         Summary::new("ユーザ",
+                      "select count(*) as count from users
+             where created_at between \
+                       ? and ?
              and type='Member' and activated_at is not null",
-            "select count(*) as count from users
-             where type='Member' and activated_at is not null"),
-        Summary::new(
-            "プレゼンタ",
-            "select count(*) as count from users
-             where created_at between ? and ?
+                      "select count(*) as count from users
+             where type='Member' and \
+                       activated_at is not null"),
+         Summary::new("プレゼンタ",
+                      "select count(*) as count from users
+             where created_at between \
+                       ? and ?
              and type='Provider' and activated_at is not null",
-            "select count(*) as count from users
-             where type='Provider' and activated_at is not null") ,
-    )
+                      "select count(*) as count from users
+             where type='Provider' \
+                       and activated_at is not null")]
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////////////////////
 pub struct SummaryMiddleware {
     // TODO Mutex を RwLock に変える
     holder: Arc<Mutex<SummaryHolder>>,

@@ -1,40 +1,38 @@
 use std::env;
-use std::collections::HashMap;
 use std::io::Read;
-
 use serde_json;
 use serde_json::value;
-use hbs::Template;
+use std::collections::BTreeMap;
 
+use hbs::Template;
 use iron::prelude::*;
 use iron::{headers, status};
-use iron_session::TypeMapSession;
 use urlencoded::UrlEncodedQuery;
 use hyper;
-use hyper::net::Openssl;
 use hyper::header::{ContentType, Headers, Authorization, Bearer};
+use hyper_native_tls::NativeTlsClient;
 use url::form_urlencoded;
-use plugin::Extensible;
+use iron_sessionstorage::SessionRequestExt;
 
 use user::User;
 
 pub fn action(mut request: &mut Request) -> IronResult<Response> {
     let mut response = Response::new();
-    let mut data = HashMap::new();
-    data.insert("title", value::to_value(&"oauth".to_string()));
+    let mut data = BTreeMap::new();
+    data.insert("title".to_string(), value::to_value(&"oauth"));
 
-    data.insert("client_id", value::to_value(&client_id()));
-    data.insert("redirect_uri", value::to_value(&redirect_uri()));
+    data.insert("client_id".to_string(), value::to_value(client_id()));
+    data.insert("redirect_uri".to_string(), value::to_value(redirect_uri()));
 
     if let Some(code) = get_code(&mut request) {
+        // println!("code: {:?}", code);
         if let Some(access_token) = get_access_token(&code) {
+            // println!("access_token: {:?}", access_token);
             if let Some(user) = get_user(&access_token) {
                 // println!("user -> {:?}", user);
                 if user.email.ends_with("@actindi.net") {
-                    let lock = request.extensions().get::<TypeMapSession>().unwrap();
-                    let mut map = lock.write().unwrap();
-                    map.insert::<User>(user);
-                    // iron 0.3 なら RedirectRaw が使える...
+                    try!(request.session().set(user));
+                    // TODO iron 0.3 なら RedirectRaw が使える...
                     response.headers.set(headers::Location("/".to_string()));
                     response.set_mut(status::Found);
                     return Ok(response);
@@ -49,10 +47,10 @@ pub fn action(mut request: &mut Request) -> IronResult<Response> {
 
 fn get_code(request: &mut Request) -> Option<String> {
     request.get_ref::<UrlEncodedQuery>()
-           .ok()
-           .and_then(|x| x.get("code"))
-           .and_then(|x| x.get(0))
-           .map(|x| x.clone())
+        .ok()
+        .and_then(|x| x.get("code"))
+        .and_then(|x| x.get(0))
+        .map(|x| x.clone())
 
 }
 
@@ -69,17 +67,29 @@ fn redirect_uri() -> String {
     env::var("OAUTH_REDIRECT_URI").ok().unwrap()
 }
 
+#[derive(Deserialize, Debug)]
+struct JsonData {
+    access_token: String,
+    token_type: String,
+    expires_in: i32,
+    id_token: String,
+}
+
 fn get_access_token(code: &str) -> Option<String> {
-    let client = hyper::Client::with_connector(hyper::net::HttpsConnector::new(Openssl::default()));
-    let req = form_urlencoded::serialize(&[("code", code),
-                                           ("client_id", &client_id()),
-                                           ("client_secret", &client_secret()),
-                                           ("redirect_uri", &redirect_uri()),
-                                           ("grant_type", "authorization_code")]);
+    let ssl = NativeTlsClient::new().unwrap();
+    let connector = hyper::net::HttpsConnector::new(ssl);
+    let client = hyper::Client::with_connector(connector);
+    let req = form_urlencoded::Serializer::new(String::new())
+        .append_pair("code", code)
+        .append_pair("client_id", &client_id())
+        .append_pair("client_secret", &client_secret())
+        .append_pair("redirect_uri", &redirect_uri())
+        .append_pair("grant_type", "authorization_code")
+        .finish();
     let res = client.post("https://accounts.google.com/o/oauth2/token")
-                    .header(ContentType("application/x-www-form-urlencoded".parse().unwrap()))
-                    .body(&*req)
-                    .send();
+        .header(ContentType("application/x-www-form-urlencoded".parse().unwrap()))
+        .body(&*req)
+        .send();
     match res {
         Err(err) => {
             println!("err: {:?}", err);
@@ -87,14 +97,6 @@ fn get_access_token(code: &str) -> Option<String> {
         }
         Ok(mut res) => {
             // println!("ok: {:?}", res);
-
-            #[derive(Deserialize, Debug)]
-            struct JsonData {
-                access_token: String,
-                token_type: String,
-                expires_in: i32,
-                id_token: String,
-            }
             let mut json_str = String::new();
             res.read_to_string(&mut json_str).unwrap();
             // println!("json_str: {:?}", json_str);
@@ -109,13 +111,15 @@ fn get_access_token(code: &str) -> Option<String> {
 }
 
 fn get_user(access_token: &String) -> Option<User> {
-    let client = hyper::Client::with_connector(hyper::net::HttpsConnector::new(Openssl::default()));
+    let ssl = NativeTlsClient::new().unwrap();
+    let connector = hyper::net::HttpsConnector::new(ssl);
+    let client = hyper::Client::with_connector(connector);
 
     let mut headers = Headers::new();
     headers.set(Authorization(Bearer { token: access_token.to_owned() }));
     let res = client.get("https://www.googleapis.com/oauth2/v2/userinfo")
-                    .headers(headers)
-                    .send();
+        .headers(headers)
+        .send();
     match res {
         Err(err) => {
             println!("err: {:?}", err);

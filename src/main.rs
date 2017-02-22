@@ -2,19 +2,17 @@
 //
 // テンプレートのライブリロード
 // cargo run --features 'watch serde_type'
-
-#![feature(custom_derive, plugin, stmt_expr_attributes)]
-#![plugin(serde_macros)]
-
 extern crate iron;
-extern crate iron_session;
+extern crate iron_sessionstorage;
+#[macro_use]
 extern crate router;
 extern crate handlebars;
 extern crate handlebars_iron as hbs;
 extern crate mysql;
 extern crate typemap;
 extern crate plugin;
-extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 extern crate serde_json;
 #[macro_use(bson, doc)]
 extern crate bson;
@@ -23,21 +21,21 @@ extern crate chrono;
 extern crate urlencoded;
 extern crate uuid;
 extern crate hyper;
+extern crate hyper_native_tls;
 extern crate url;
 
 use std::error::Error;
 
 use iron::prelude::*;
-use iron_session::{HashSessionStore, Sessions, TypeMapSession};
-use router::Router;
 #[cfg(feature = "watch")]
 use std::sync::Arc;
 #[cfg(feature = "watch")]
 use hbs::Watchable;
 use hbs::{HandlebarsEngine, DirectorySource};
 use uuid::Uuid;
+use iron_sessionstorage::SessionStorage;
+use iron_sessionstorage::backends::SignedCookieBackend;
 
-mod util;
 mod db;
 mod mongo;
 mod tail_event;
@@ -51,15 +49,16 @@ mod watch_login;
 mod hello;
 
 fn main() {
-    let mut router = Router::new();
-    router.get("/", top::action);
-    router.get("/oauth2callback", oauth2callback::action);
-    router.get("/watch-login", watch_login::action);
-    router.get("/hello", hello::action);
+    let router = router!(
+        top: get "/" => top::action,
+        oauth2callback: get "/oauth2callback" => oauth2callback::action,
+        watch_login: get "/watch-login" => watch_login::action,
+        hello: get "/hello" => hello::action,
+    );
 
-    let mut hbse = HandlebarsEngine::new2();
+    let mut hbse = HandlebarsEngine::new();
     hbse.add(Box::new(DirectorySource::new("./templates/", ".hbs")));
-    hbse.registry.write().unwrap().register_helper("commify", Box::new(view_helper::commify));
+    hbse.handlebars_mut().register_helper("commify", Box::new(view_helper::commify));
 
     // load templates from all registered sources
     if let Err(r) = hbse.reload() {
@@ -74,9 +73,8 @@ fn main() {
     let pool = mongo_middleware.pool.clone();
     chain.link_around(mongo_middleware);
 
-    let store: HashSessionStore<TypeMapSession> = HashSessionStore::new();
-    let uuid = Uuid::new_v4();  // 本来は固定
-    chain.around(Sessions::new(uuid.as_bytes().to_vec(), store));
+    let uuid = Uuid::new_v4().as_bytes().to_vec();  // 本来は固定
+    chain.link_around(SessionStorage::new(SignedCookieBackend::new(uuid)));
 
     chain.link_around(summary::SummaryMiddleware::new());
 

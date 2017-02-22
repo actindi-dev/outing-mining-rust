@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
+use serde_json::value;
+
 use bson::Bson;
 use chrono::{Date, Duration, Local};
 use chrono::offset::utc::UTC;
 use hbs::Template;
 use iron::prelude::*;
 use iron::status;
-use serde_json::value;
 use mongo_driver::client::Client;
 use mongo::MongoRequestExtension;
 
@@ -14,7 +15,7 @@ use mongo::MongoRequestExtension;
 struct OfDate {
     date: String,
     success: HashMap<String, usize>,
-    failed:  HashMap<String, usize>,
+    failed: HashMap<String, usize>,
 }
 
 #[derive(Serialize, Debug)]
@@ -55,13 +56,15 @@ fn top_data(vec: &Vec<OfDate>) -> Vec<TopData> {
     for of_date in vec {
         let (sv, sc) = sort_and_total(&of_date.success);
         let (fv, fc) = sort_and_total(&of_date.failed);
-        results.push(TopData { date: of_date.date.clone(),
-                               success_count: sc,
-                               success_nip: of_date.success.len(),
-                               success_vec: sv,
-                               failed_count: fc,
-                               failed_nip: of_date.failed.len(),
-                               failed_vec: fv });
+        results.push(TopData {
+            date: of_date.date.clone(),
+            success_count: sc,
+            success_nip: of_date.success.len(),
+            success_vec: sv,
+            failed_count: fc,
+            failed_nip: of_date.failed.len(),
+            failed_vec: fv,
+        });
     }
     results.reverse();
     results
@@ -71,7 +74,10 @@ fn sort_and_total(map: &HashMap<String, usize>) -> (Vec<IpCount>, usize) {
     let mut vec = Vec::new();
     let mut total = 0;
     for (ip, count) in map {
-        vec.push(IpCount { ip: ip.clone(), count: *count});
+        vec.push(IpCount {
+            ip: ip.clone(),
+            count: *count,
+        });
         total += *count;
     }
     vec.sort_by(|a, b| b.count.cmp(&a.count));
@@ -104,7 +110,8 @@ fn watch_login_data(mongo: &Client) -> Vec<OfDate> {
     vec
 }
 
-fn watch_log_per_date(mongo: &Client, date: Date<Local>)
+fn watch_log_per_date(mongo: &Client,
+                      date: Date<Local>)
                       -> (HashMap<String, usize>, HashMap<String, usize>) {
     let end = date + Duration::days(1);
 
@@ -149,13 +156,13 @@ fn watch_log_per_date(mongo: &Client, date: Date<Local>)
                                         failed.insert(ip.clone(), 1);
                                     }
                                 }
-                            },
-                            _ => {},
+                            }
+                            _ => {}
                         }
-                    },
-                    _ => {},
+                    }
+                    _ => {}
                 }
-            },
+            }
             Err(e) => panic!("Failed to get next from server! {}", e),
         }
     }
