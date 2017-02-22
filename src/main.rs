@@ -1,4 +1,3 @@
-#![cfg_attr(all(feature="serde_type"), feature(proc_macro))]
 // cargo run --features 'serde_type'
 //
 // テンプレートのライブリロード
