@@ -24,6 +24,7 @@ update:
 	cargo update
 
 make-test-data:
+	RUST_BACKTRACE=1 \
 	cargo run --bin make-test-data
 
 clean:
