@@ -28,3 +28,14 @@ uuid = { version="0.3", features=["v4"] }
 url = "1.2"
 hyper = "0.10"
 hyper-native-tls = "0.2"
+
+# for make-test-data
+rand = "0.3"
+
+[[bin]]
+name = "outing-mining-rust"
+path = "src/main.rs"
+
+[[bin]]
+name = "make-test-data"
+path = "src/bin/make-test-data.rs"
