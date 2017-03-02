@@ -20,7 +20,7 @@ fn main() {
 
     let mut rng = rand::thread_rng();
 
-    for i in 0..30 {
+    for i in 0..31 {
         let time: DateTime<UTC> = UTC::now() - Duration::days(i);
 
         // ログイン成功

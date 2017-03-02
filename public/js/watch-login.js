@@ -63,14 +63,20 @@ $(function() {
 
     // chart.js
     var ctx = document.getElementById("myChart");
+    var chardData = $(ctx).data('chart-data');
+    var labels = $.map(chardData, function(x) { return x.date; });
+    var failedIpCounts = $.map(chardData, function(x) {
+        var n = 0;
+        for(key in x.failed) { if(x.failed.hasOwnProperty(key)) ++n; }
+        return n;
+    });
     var myChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            // labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-            labels: dataset,
+            labels: labels,
             datasets: [{
                 label: 'ログイン失敗IP数',
-                data: dataset,
+                data: failedIpCounts,
                 borderWidth: 1
             }]
         },

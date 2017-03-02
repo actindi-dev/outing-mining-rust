@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use serde_json::value;
+use serde_json::{self, value};
 
 use bson::Bson;
 use chrono::{Date, Duration, Local};
@@ -45,6 +45,7 @@ pub fn action(request: &mut Request) -> IronResult<Response> {
     data.insert("login_data", value::to_value(&login_data));
 
     data.insert("graph_data", value::to_value(&graph_data(&login_data)));
+    data.insert("chart_data", value::to_value(&chart_data(&login_data)));
     data.insert("top_data", value::to_value(&top_data(&login_data)));
 
     response.set_mut(Template::new("watch_login", data)).set_mut(status::Ok);
@@ -88,6 +89,10 @@ fn sort_and_total(map: &HashMap<String, usize>) -> (Vec<IpCount>, usize) {
 fn graph_data(vec: &Vec<OfDate>) -> String {
     let vec: Vec<String> = vec.iter().map(|i| format!("{}", i.failed.len())).collect();
     vec.join(", ")
+}
+
+fn chart_data(vec: &Vec<OfDate>) -> String {
+    serde_json::to_string(vec).unwrap()
 }
 
 fn watch_login_data(mongo: &Client) -> Vec<OfDate> {
