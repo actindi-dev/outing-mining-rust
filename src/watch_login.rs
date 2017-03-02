@@ -18,6 +18,7 @@ struct OfDate {
     failed: HashMap<String, usize>,
     oauth_failed: i64,
     password_reset_request_failed: i64,
+    password_reset_failed: i64,
 }
 
 #[derive(Serialize, Debug)]
@@ -107,38 +108,27 @@ fn watch_login_data(mongo: &Client) -> Vec<OfDate> {
 
     while date <= end {
         let (success, failed) = watch_log_per_date(&mongo, date);
-        let oauth_failed = count_oauth_failed(&mongo, date);
-        let password_reset_request_failed = count_password_reset_request_failed(&mongo, date);
+        let oauth_failed = count_failed(&mongo, date, "oauth");
+        let password_reset_request_failed = count_failed(&mongo, date, "password_reset_request");
+        let password_reset_failed = count_failed(&mongo, date, "reset_password");
         vec.push(OfDate {
             date: date.format("%Y/%m/%d").to_string(),
             success: success,
             failed: failed,
             oauth_failed: oauth_failed,
             password_reset_request_failed: password_reset_request_failed,
+            password_reset_failed: password_reset_failed,
         });
         date = date.succ();
     }
     vec
 }
 
-fn count_oauth_failed(mongo: &Client, date: Date<Local>) -> i64 {
+fn count_failed(mongo: &Client, date: Date<Local>, key: &str) -> i64 {
     let end = date + Duration::days(1);
     let logs_event = mongo.get_collection("outing", "logs.event");
     let condition = doc! {
-        "events" => { "oauth" => false },
-        "time" => {
-            "$gte" => (date.and_hms(0, 0, 0).with_timezone(&UTC)),
-            "$lt" => (end.and_hms(0, 0, 0).with_timezone(&UTC))
-        }
-    };
-    logs_event.count(&condition, None).unwrap()
-}
-
-fn count_password_reset_request_failed(mongo: &Client, date: Date<Local>) -> i64 {
-    let end = date + Duration::days(1);
-    let logs_event = mongo.get_collection("outing", "logs.event");
-    let condition = doc! {
-        "events" => { "password_reset_request" => false },
+        "events" => { key => false },
         "time" => {
             "$gte" => (date.and_hms(0, 0, 0).with_timezone(&UTC)),
             "$lt" => (end.and_hms(0, 0, 0).with_timezone(&UTC))

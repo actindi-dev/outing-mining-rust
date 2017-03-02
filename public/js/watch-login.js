@@ -16,6 +16,9 @@ $(function() {
     var passwordResetRequestFailedCounts = $.map(chartData, function(x) {
         return x.password_reset_request_failed;
     });
+    var passwordResetFailedCounts = $.map(chartData, function(x) {
+        return x.password_reset_failed;
+    });
 
     var myChart = new Chart(ctx, {
         //type: 'bar',
@@ -37,6 +40,10 @@ $(function() {
                 },
                 { label: 'パスワードリセットリクエスト失敗数',
                   data: passwordResetRequestFailedCounts,
+                  borderWidth: 1
+                },
+                { label: 'パスワードリセットリ失敗数',
+                  data: passwordResetFailedCounts,
                   borderWidth: 1
                 }
             ]

@@ -66,6 +66,17 @@ fn main() {
             };
             logs_event.insert(&doc, None).unwrap();
         }
+
+        // パスワードリセット失敗
+        let max = Range::new(5, 25).ind_sample(&mut rng);
+        for _ in 0..max {
+            let doc = doc! {
+                "time" => time,
+                "events" => [ { "reset_password" => false } ],
+                "ip" => (format!("10.10.10.{}", rand::random::<u8>()))
+            };
+            logs_event.insert(&doc, None).unwrap();
+        }
     }
 
     let doc = doc!{};
