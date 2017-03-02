@@ -13,6 +13,9 @@ $(function() {
         return n;
     });
     var oauthFailedCounts = $.map(chartData, function(x) { return x.oauth_failed });
+    var passwordResetRequestFailedCounts = $.map(chartData, function(x) {
+        return x.password_reset_request_failed;
+    });
 
     var myChart = new Chart(ctx, {
         //type: 'bar',
@@ -30,6 +33,10 @@ $(function() {
                 },
                 { label: 'OAuth失敗数',
                   data: oauthFailedCounts,
+                  borderWidth: 1
+                },
+                { label: 'パスワードリセットリクエスト失敗数',
+                  data: passwordResetRequestFailedCounts,
                   borderWidth: 1
                 }
             ]

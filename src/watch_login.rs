@@ -17,6 +17,7 @@ struct OfDate {
     success: HashMap<String, usize>,
     failed: HashMap<String, usize>,
     oauth_failed: i64,
+    password_reset_request_failed: i64,
 }
 
 #[derive(Serialize, Debug)]
@@ -107,11 +108,13 @@ fn watch_login_data(mongo: &Client) -> Vec<OfDate> {
     while date <= end {
         let (success, failed) = watch_log_per_date(&mongo, date);
         let oauth_failed = count_oauth_failed(&mongo, date);
+        let password_reset_request_failed = count_password_reset_request_failed(&mongo, date);
         vec.push(OfDate {
             date: date.format("%Y/%m/%d").to_string(),
             success: success,
             failed: failed,
             oauth_failed: oauth_failed,
+            password_reset_request_failed: password_reset_request_failed,
         });
         date = date.succ();
     }
@@ -123,6 +126,19 @@ fn count_oauth_failed(mongo: &Client, date: Date<Local>) -> i64 {
     let logs_event = mongo.get_collection("outing", "logs.event");
     let condition = doc! {
         "events" => { "oauth" => false },
+        "time" => {
+            "$gte" => (date.and_hms(0, 0, 0).with_timezone(&UTC)),
+            "$lt" => (end.and_hms(0, 0, 0).with_timezone(&UTC))
+        }
+    };
+    logs_event.count(&condition, None).unwrap()
+}
+
+fn count_password_reset_request_failed(mongo: &Client, date: Date<Local>) -> i64 {
+    let end = date + Duration::days(1);
+    let logs_event = mongo.get_collection("outing", "logs.event");
+    let condition = doc! {
+        "events" => { "password_reset_request" => false },
         "time" => {
             "$gte" => (date.and_hms(0, 0, 0).with_timezone(&UTC)),
             "$lt" => (end.and_hms(0, 0, 0).with_timezone(&UTC))

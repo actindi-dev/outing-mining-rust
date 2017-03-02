@@ -45,12 +45,23 @@ fn main() {
             logs_event.insert(&doc, None).unwrap();
         }
 
-        // oauth 失敗
+        // OAuth 失敗
         let max = Range::new(10, 30).ind_sample(&mut rng);
         for _ in 0..max {
             let doc = doc! {
                 "time" => time,
                 "events" => [ { "oauth" => false } ],
+                "ip" => (format!("10.10.10.{}", rand::random::<u8>()))
+            };
+            logs_event.insert(&doc, None).unwrap();
+        }
+
+        // パスワードリセットリクエスト失敗
+        let max = Range::new(20, 40).ind_sample(&mut rng);
+        for _ in 0..max {
+            let doc = doc! {
+                "time" => time,
+                "events" => [ { "password_reset_request" => false } ],
                 "ip" => (format!("10.10.10.{}", rand::random::<u8>()))
             };
             logs_event.insert(&doc, None).unwrap();
