@@ -1,5 +1,5 @@
 $(function() {
-    var ctx = document.getElementById("myChart");
+    var ctx = document.getElementById("chart");
     var chardData = $(ctx).data('chart-data');
     var labels = $.map(chardData, function(x) { return x.date; });
     var failedIpCounts = $.map(chardData, function(x) {
