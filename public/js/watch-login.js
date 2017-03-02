@@ -1,17 +1,19 @@
 $(function() {
     var ctx = document.getElementById("chart");
-    var chardData = $(ctx).data('chart-data');
-    var labels = $.map(chardData, function(x) { return x.date; });
-    var failedIpCounts = $.map(chardData, function(x) {
+    var chartData = $(ctx).data('chart-data');
+    var labels = $.map(chartData, function(x) { return x.date; });
+    var failedIpCounts = $.map(chartData, function(x) {
         var n = 0;
         $.map(x.failed, function() { ++n });
         return n;
     });
-    var failedCounts = $.map(chardData, function(x) {
+    var failedCounts = $.map(chartData, function(x) {
         var n = 0;
         $.map(x.failed, function(v) { n += v });
         return n;
     });
+    var oauthFailedCounts = $.map(chartData, function(x) { return x.oauth_failed });
+
     var myChart = new Chart(ctx, {
         //type: 'bar',
         type: 'line',
@@ -24,6 +26,10 @@ $(function() {
                 },
                 { label: 'ログイン失敗数',
                   data: failedCounts,
+                  borderWidth: 1
+                },
+                { label: 'OAuth失敗数',
+                  data: oauthFailedCounts,
                   borderWidth: 1
                 }
             ]
