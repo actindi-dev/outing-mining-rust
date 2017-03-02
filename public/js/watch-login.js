@@ -28,23 +28,33 @@ $(function() {
             datasets: [
                 { label: 'ログイン失敗IP数',
                   data: failedIpCounts,
-                  borderWidth: 1
+                  lineTension: 0,
+                  fill: false,
+                  borderColor: "rgba(75,192,192,1)",
                 },
                 { label: 'ログイン失敗数',
                   data: failedCounts,
-                  borderWidth: 1
+                  lineTension: 0,
+                  fill: false,
+                  borderColor: "rgba(192,75,192,1)",
                 },
                 { label: 'OAuth失敗数',
                   data: oauthFailedCounts,
-                  borderWidth: 1
+                  lineTension: 0,
+                  fill: false,
+                  borderColor: "rgba(192,192,75,1)",
                 },
                 { label: 'パスワードリセットリクエスト失敗数',
                   data: passwordResetRequestFailedCounts,
-                  borderWidth: 1
+                  lineTension: 0,
+                  fill: false,
+                  borderColor: "rgba(75,75,192,1)",
                 },
                 { label: 'パスワードリセットリ失敗数',
                   data: passwordResetFailedCounts,
-                  borderWidth: 1
+                  lineTension: 0,
+                  fill: false,
+                  borderColor: "rgba(75,192,75,1)",
                 }
             ]
         },
