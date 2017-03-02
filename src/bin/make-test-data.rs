@@ -18,13 +18,13 @@ fn main() {
 
     let _ = logs_event.drop();
 
+    let mut rng = rand::thread_rng();
+
     for i in 0..30 {
         let time: DateTime<UTC> = UTC::now() - Duration::days(i);
 
         // ログイン成功
-        let between = Range::new(100, 200);
-        let mut rng = rand::thread_rng();
-        let max = between.ind_sample(&mut rng);
+        let max = Range::new(200, 300).ind_sample(&mut rng);
         for _ in 0..max {
             let doc = doc! {
                 "time" => time,
@@ -35,8 +35,7 @@ fn main() {
         }
 
         // ログイン失敗
-        let between = Range::new(10, 20);
-        let max = between.ind_sample(&mut rng);
+        let max = Range::new(50, 100).ind_sample(&mut rng);
         for _ in 0..max {
             let doc = doc! {
                 "time" => time,

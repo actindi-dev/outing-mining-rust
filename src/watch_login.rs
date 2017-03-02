@@ -95,7 +95,7 @@ fn watch_login_data(mongo: &Client) -> Vec<OfDate> {
     #[cfg(not(debug_assertions))]
     let mut date = end - Duration::days(29);
     #[cfg(debug_assertions)]
-    let mut date = end - Duration::days(1);
+    let mut date = end - Duration::days(29);
     let mut vec = Vec::new();
 
     while date <= end {
