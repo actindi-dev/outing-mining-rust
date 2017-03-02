@@ -4,7 +4,7 @@ $(function() {
     var labels = $.map(chartData, function(x) { return x.date; });
     var failedIpCounts = $.map(chartData, function(x) {
         var n = 0;
-        $.map(x.failed, function() { ++n });
+        $.each(x.failed, function() { ++n });
         return n;
     });
     var failedCounts = $.map(chartData, function(x) {

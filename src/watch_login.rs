@@ -47,7 +47,6 @@ pub fn action(request: &mut Request) -> IronResult<Response> {
     let login_data = watch_login_data(&mongo);
     data.insert("login_data", value::to_value(&login_data));
 
-    data.insert("graph_data", value::to_value(&graph_data(&login_data)));
     data.insert("chart_data", value::to_value(&chart_data(&login_data)));
     data.insert("top_data", value::to_value(&top_data(&login_data)));
 
@@ -87,11 +86,6 @@ fn sort_and_total(map: &HashMap<String, usize>) -> (Vec<IpCount>, usize) {
     vec.sort_by(|a, b| b.count.cmp(&a.count));
     vec.truncate(5);
     (vec, total)
-}
-
-fn graph_data(vec: &Vec<OfDate>) -> String {
-    let vec: Vec<String> = vec.iter().map(|i| format!("{}", i.failed.len())).collect();
-    vec.join(", ")
 }
 
 fn chart_data(vec: &Vec<OfDate>) -> String {
