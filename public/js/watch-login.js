@@ -59,4 +59,29 @@ $(function() {
         .attr("font-size", "11px")
         .attr("fill", "white")
     ;
+
+
+    // chart.js
+    var ctx = document.getElementById("myChart");
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            // labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+            labels: dataset,
+            datasets: [{
+                label: 'ログイン失敗IP数',
+                data: dataset,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        }
+    });
 });

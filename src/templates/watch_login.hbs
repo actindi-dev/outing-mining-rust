@@ -1,5 +1,5 @@
 {{#*inline "page"}}
-<canvas id="myChart" width="400" height="400"></canvas>
+<canvas id="myChart" width="400" height="100"></canvas>
 <h1>ログイン監視</h1>
 <h2>失敗数</h2>
 <div id="graph"></div>
@@ -40,29 +40,5 @@
   <script src="/js/watch-login.js" charset="utf-8"></script>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
-<script>
-var ctx = document.getElementById("myChart");
-var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        // labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-        labels: [{{graph_data}}],
-        datasets: [{
-            label: '# of Votes',
-            data: [{{graph_data}}],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero:true
-                }
-            }]
-        }
-    }
-});
-</script>
 {{/inline}}
 {{~> layout ~}}
