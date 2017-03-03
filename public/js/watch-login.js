@@ -3,9 +3,7 @@ $(function() {
     var chartData = $(ctx).data('chart-data');
     var labels = $.map(chartData, function(x) { return x.date; });
     var failedIpCounts = $.map(chartData, function(x) {
-        var n = 0;
-        $.each(x.failed, function() { ++n });
-        return n;
+        return Object.keys(x.failed).length;
     });
     var failedCounts = $.map(chartData, function(x) {
         var n = 0;
