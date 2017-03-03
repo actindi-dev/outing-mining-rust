@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use serde_json::value;
+use serde_json::{self, value};
 
 use bson::Bson;
 use chrono::{Date, Duration, Local};
@@ -16,6 +16,9 @@ struct OfDate {
     date: String,
     success: HashMap<String, usize>,
     failed: HashMap<String, usize>,
+    oauth_failed: i64,
+    password_reset_request_failed: i64,
+    password_reset_failed: i64,
 }
 
 #[derive(Serialize, Debug)]
@@ -44,7 +47,7 @@ pub fn action(request: &mut Request) -> IronResult<Response> {
     let login_data = watch_login_data(&mongo);
     data.insert("login_data", value::to_value(&login_data));
 
-    data.insert("graph_data", value::to_value(&graph_data(&login_data)));
+    data.insert("chart_data", value::to_value(&chart_data(&login_data)));
     data.insert("top_data", value::to_value(&top_data(&login_data)));
 
     response.set_mut(Template::new("watch_login", data)).set_mut(status::Ok);
@@ -85,9 +88,8 @@ fn sort_and_total(map: &HashMap<String, usize>) -> (Vec<IpCount>, usize) {
     (vec, total)
 }
 
-fn graph_data(vec: &Vec<OfDate>) -> String {
-    let vec: Vec<String> = vec.iter().map(|i| format!("{}", i.failed.len())).collect();
-    vec.join(", ")
+fn chart_data(vec: &Vec<OfDate>) -> String {
+    serde_json::to_string(vec).unwrap()
 }
 
 fn watch_login_data(mongo: &Client) -> Vec<OfDate> {
@@ -95,19 +97,38 @@ fn watch_login_data(mongo: &Client) -> Vec<OfDate> {
     #[cfg(not(debug_assertions))]
     let mut date = end - Duration::days(29);
     #[cfg(debug_assertions)]
-    let mut date = end - Duration::days(1);
+    let mut date = end - Duration::days(29);
     let mut vec = Vec::new();
 
     while date <= end {
         let (success, failed) = watch_log_per_date(&mongo, date);
+        let oauth_failed = count_failed(&mongo, date, "oauth");
+        let password_reset_request_failed = count_failed(&mongo, date, "password_reset_request");
+        let password_reset_failed = count_failed(&mongo, date, "reset_password");
         vec.push(OfDate {
             date: date.format("%Y/%m/%d").to_string(),
             success: success,
             failed: failed,
+            oauth_failed: oauth_failed,
+            password_reset_request_failed: password_reset_request_failed,
+            password_reset_failed: password_reset_failed,
         });
         date = date.succ();
     }
     vec
+}
+
+fn count_failed(mongo: &Client, date: Date<Local>, key: &str) -> i64 {
+    let end = date + Duration::days(1);
+    let logs_event = mongo.get_collection("outing", "logs.event");
+    let condition = doc! {
+        "events" => { key => false },
+        "time" => {
+            "$gte" => (date.and_hms(0, 0, 0).with_timezone(&UTC)),
+            "$lt" => (end.and_hms(0, 0, 0).with_timezone(&UTC))
+        }
+    };
+    logs_event.count(&condition, None).unwrap()
 }
 
 fn watch_log_per_date(mongo: &Client,

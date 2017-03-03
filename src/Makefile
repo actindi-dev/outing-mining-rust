@@ -5,7 +5,7 @@ all:
 	OAUTH_CLIENT_ID=$(OAUTH_CLIENT_ID) \
 	OAUTH_CLIENT_SECRET=$(OAUTH_CLIENT_SECRET) \
 	OAUTH_REDIRECT_URI=$(OAUTH_REDIRECT_URI) \
-	cargo run --features 'watch serde_type'
+	cargo run --bin outing-mining-rust --features 'watch serde_type'
 
 run-release:
 	RUST_BACKTRACE=1 cargo run --features 'serde_type' --release
@@ -22,6 +22,10 @@ deploy: release
 
 update:
 	cargo update
+
+make-test-data:
+	RUST_BACKTRACE=1 \
+	cargo run --bin make-test-data
 
 clean:
 	cargo clean

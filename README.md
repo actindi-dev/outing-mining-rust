@@ -42,6 +42,11 @@ OAUTH_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxx"
 OAUTH_REDIRECT_URI="http://127.0.0.1:19588/oauth2callback"
 ```
 
+## テストデータ
+
+`src` ディレクトリで `make make-test-data` すると MongoDB にテストデータが作成される。
+`logs.event` コレクションは全削除されるので気を付けて。
+
 ## ビルド
 
 `src` ディレクトリで `make` すれば動く。

@@ -1,9 +1,7 @@
 {{#*inline "page"}}
 <h1>ログイン監視</h1>
-<h2>失敗数</h2>
-<div id="graph"></div>
-
-<h2>履歴</h2>
+<canvas id="chart" width="400" height="100" data-chart-data="{{chart_data}}"></canvas>
+<h2>ログイン履歴</h2>
 <ul>
   {{#each top_data}}
   <li>
@@ -33,10 +31,7 @@
   </li>
   {{/each}}
 </ul>
-
-<script src="/js/d3.v3.min.js" charset="utf-8"></script>
-<div data-dataset="[{{graph_data}}]">
-  <script src="/js/watch-login.js" charset="utf-8"></script>
-</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+<script src="/js/watch-login.js" charset="utf-8"></script>
 {{/inline}}
 {{~> layout ~}}
