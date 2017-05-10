@@ -11,7 +11,7 @@ use rand::distributions::{IndependentSample, Range};
 
 fn main() {
     println!("テストデータを作ります。");
-    let uri = Uri::new("mongodb://localhost:27017").unwrap();
+    let uri = Uri::new("mongodb://mongo:27017").unwrap();
     let pool = ClientPool::new(uri, None);
     let client = pool.pop();
     let mut logs_event = client.get_collection("outing", "logs.event");

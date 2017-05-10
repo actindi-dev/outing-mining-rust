@@ -22,7 +22,7 @@ impl MongoMiddleware {
     pub fn new() -> MongoMiddleware {
         let uri = match env::var("MONGO_URI") {
             Ok(val) => val,
-            Err(_) => "mongodb://localhost:27017".to_string(),
+            Err(_) => "mongodb://mongo:27017".to_string(),
         };
         let uri = Uri::new(uri).unwrap();
         let pool = ClientPool::new(uri, None);

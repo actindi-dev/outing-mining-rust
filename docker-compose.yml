@@ -1,0 +1,33 @@
+version: '2'
+services:
+  mysql:
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+  mongo:
+    image: mongo:3.4.4
+    ports:
+      - "27017:27017"
+  rust:
+    build: docker/rust
+    environment:
+      DB_URL: "mysql://root:@mysql:3306/outing_development"
+    links:
+      - mongo
+      - mysql
+    ports:
+      - "1958:1958"
+    volumes:
+      - ./:/app
+  # nginx:
+  #   image: nginx:1.13.0-alpine
+  #   links:
+  #     - rust
+  #   ports:
+  #     - '19588:19588'
+  #   volumes:
+  #     - ./etc/outing.minig.local.conf:/etc/nginx/conf.d/outing.minig.local.conf

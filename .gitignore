@@ -1,3 +1,4 @@
 *~
 /google-oauth.mk
 target
+docker/mysql/docker-entrypoint-initdb.d/dump.sql
