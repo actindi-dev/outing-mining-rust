@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   mysql:
     environment:
@@ -14,6 +14,7 @@ services:
       - "27017:27017"
   rust:
     build: docker/rust
+    command: sh -c "cd /app/src && make"
     environment:
       DB_URL: "mysql://root:@mysql:3306/outing_development"
     links:
@@ -23,11 +24,11 @@ services:
       - "1958:1958"
     volumes:
       - ./:/app
-  # nginx:
-  #   image: nginx:1.13.0-alpine
-  #   links:
-  #     - rust
-  #   ports:
-  #     - '19588:19588'
-  #   volumes:
-  #     - ./etc/outing.minig.local.conf:/etc/nginx/conf.d/outing.minig.local.conf
+  nginx:
+    image: nginx:1.13.0-alpine
+    links:
+      - rust
+    ports:
+      - '19588:19588'
+    volumes:
+      - ./etc/outing.minig.local.conf:/etc/nginx/conf.d/outing.minig.local.conf

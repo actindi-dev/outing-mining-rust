@@ -80,7 +80,7 @@ fn main() {
 
     tail_event::run(pool);
 
-    Iron::new(chain).http("127.0.0.1:1958").unwrap();
+    Iron::new(chain).http("rust:1958").unwrap();
 }
 
 #[cfg(feature = "watch")]
