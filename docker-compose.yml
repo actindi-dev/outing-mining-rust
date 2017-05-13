@@ -34,5 +34,6 @@ services:
       - '19588:19588'
     volumes:
       - ./etc/outing.minig.local.conf:/etc/nginx/conf.d/outing.minig.local.conf
+      - ./public:/public
 volumes:
   cargo:
