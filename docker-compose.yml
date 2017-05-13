@@ -16,6 +16,7 @@ services:
     build: docker/rust
     command: sh -c "cd /app/src && make"
     environment:
+      CARGO_HOME: /cargo
       DB_URL: "mysql://root:@mysql:3306/outing_development"
     links:
       - mongo
@@ -24,6 +25,7 @@ services:
       - "1958:1958"
     volumes:
       - ./:/app
+      - cargo:/cargo
   nginx:
     image: nginx:1.13.0-alpine
     links:
@@ -32,3 +34,5 @@ services:
       - '19588:19588'
     volumes:
       - ./etc/outing.minig.local.conf:/etc/nginx/conf.d/outing.minig.local.conf
+volumes:
+  cargo:
