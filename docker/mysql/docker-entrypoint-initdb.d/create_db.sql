@@ -1,1 +1,0 @@
--- CREATE DATABASE `outing_development` DEFAULT CHARACTER SET utf8mb4
